@@ -105,6 +105,38 @@ transactionSDK.prototype.buildPayment = function(guid, to, asset, amount, from, 
 };
 
 /**
+ * Advanced Build a raw transaction transfered from the wallet.
+ * May use all available addresses (under the wallet) as source addresses if not specified.
+ *
+ * @param {String} guid unique id for each wallet
+ * @param {Number} fee transaction fee amount
+ * @returns {Promise}
+ */
+transactionSDK.prototype.buildTransaction = function(guid, inputs, outputs, fee ) {
+    let net = this.bytom.net;
+    let retPromise = new Promise((resolve, reject) => {
+        let pm = {
+            guid,
+            inputs,
+            outputs
+        };
+        if (fee) {
+            pm.fee = fee;
+        }
+        this.http.request('merchant/build-transaction', pm, net).then(resp => {
+            if (resp.status !== 200 || resp.data.code !== 200) {
+                reject(handleApiError(resp));
+                return;
+            }
+            resolve(resp.data);
+        }).catch(err => {
+            reject(handleAxiosError(err));
+        });
+    });
+    return retPromise;
+};
+
+/**
  * sign transaction
  * @param {String} guid
  * @param {String} transaction

@@ -6,7 +6,7 @@ export function serverHttp(host) {
     this.host = host;
     this.request = function(path, body, net, method) {
         var config = {
-            url: `${this.host[net]}${basePath}${path}`,
+            url: this.host[net] ? `${this.host[net]}${basePath}${path}`: `${this.host}${basePath}${path}`,
             method: method ? method : 'POST' ,
             headers: {
                 Accept: 'application/json',

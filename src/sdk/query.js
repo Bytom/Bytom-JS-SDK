@@ -36,4 +36,19 @@ querySDK.prototype.getblockcount = function() {
     return retPromise;
 };
 
+/**
+ * Query the current utxo.
+ */
+querySDK.prototype.listUtxo = function(object) {
+    let net = this.bytom.net;
+    let retPromise = new Promise((resolve, reject) => {
+        this.http.request('q/list-utxos',object, net,  'POST').then(resp => {
+            resolve(resp.data);
+        }).catch(err => {
+            reject(handleAxiosError(err));
+        });
+    });
+    return retPromise;
+};
+
 export default querySDK;
