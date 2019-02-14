@@ -105,6 +105,28 @@ export async function createKey(data) {
     return res;
 }
 
+export async function createPubkey(data) {
+    await init();
+    let res = newWasmResult();
+    window.AllFunc.createPubkey(data, res);
+    await res.wait;
+    if (res.hasOwnProperty('error')) {
+        throw new Error(res.error);
+    }
+    return res;
+}
+
+export async function convertArgument(data) {
+    await init();
+    let res = newWasmResult();
+    window.AllFunc.convertArgument(data, res);
+    await res.wait;
+    if (res.hasOwnProperty('error')) {
+        throw new Error(res.error);
+    }
+    return res;
+}
+
 export async function scMulBase(pri) {
     await init();
     let res = newWasmResult();

@@ -1,4 +1,4 @@
-import {createKey, resetKeyPassword} from '../wasm/func';
+import {createKey, resetKeyPassword, createPubkey, convertArgument} from '../wasm/func';
 import {getDB} from '../db/db';
 
 function keysSDK() {
@@ -154,6 +154,49 @@ keysSDK.prototype.create = function(alias, password) {
             getRequest.onerror = function () {
                 reject(new Error('db get error'));
             };
+        }).catch(error => {
+            reject(error);
+        });
+    });
+    return retPromise;
+};
+
+
+/**
+ * Create a new key.
+ *
+ * @param {String} xpub - xpub.
+ */
+keysSDK.prototype.createPubkey = function(xpub) {
+    let retPromise = new Promise((resolve, reject) => {
+        let data = {};
+        data.xpub = xpub;
+        data.seed = 1;
+        createPubkey(data).then((res) => {
+            let jsonData = JSON.parse(res.data);
+            resolve(jsonData);
+        }).catch(error => {
+            reject(error);
+        });
+    });
+    return retPromise;
+};
+
+
+/**
+ * Convert arguement.
+ *
+ * @param {String} type - type.
+ * @param {String} value - value.
+ */
+keysSDK.prototype.convertArgument = function(type, value) {
+    let retPromise = new Promise((resolve, reject) => {
+        let data = {};
+        data.type = type;
+        data.raw_data = {value};
+        convertArgument(data).then((res) => {
+            let jsonData = JSON.parse(res.data);
+            resolve({data:jsonData});
         }).catch(error => {
             reject(error);
         });
