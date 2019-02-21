@@ -113,16 +113,19 @@ transactionSDK.prototype.buildPayment = function(guid, to, asset, amount, from, 
  * @param {Number} fee transaction fee amount
  * @returns {Promise}
  */
-transactionSDK.prototype.buildTransaction = function(guid, inputs, outputs, fee ) {
+transactionSDK.prototype.buildTransaction = function(guid, inputs, outputs, fee, confirmations ) {
     let net = this.bytom.net;
     let retPromise = new Promise((resolve, reject) => {
         let pm = {
             guid,
             inputs,
-            outputs
+            outputs,
         };
         if (fee) {
             pm.fee = fee;
+        }
+        if (confirmations) {
+            pm.confirmations = confirmations;
         }
         this.http.request('merchant/build-transaction', pm, net).then(resp => {
             if (resp.status !== 200 || resp.data.code !== 200) {
