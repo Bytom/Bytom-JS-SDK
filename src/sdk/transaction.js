@@ -1,6 +1,7 @@
-import { signTransaction1 } from '../wasm/func';
+import {convertArgument, signTransaction1} from '../wasm/func';
 import { handleApiError, handleAxiosError } from '../utils/http';
 import { getDB } from '../db/db';
+import keysSDK from "./keys";
 
 function transactionSDK(bytom) {
     this.http = bytom.serverHttp;
@@ -112,16 +113,19 @@ transactionSDK.prototype.buildPayment = function(guid, to, asset, amount, from, 
  * @param {Number} fee transaction fee amount
  * @returns {Promise}
  */
-transactionSDK.prototype.buildTransaction = function(guid, inputs, outputs, fee ) {
+transactionSDK.prototype.buildTransaction = function(guid, inputs, outputs, fee, confirmations ) {
     let net = this.bytom.net;
     let retPromise = new Promise((resolve, reject) => {
         let pm = {
             guid,
             inputs,
-            outputs
+            outputs,
         };
         if (fee) {
             pm.fee = fee;
+        }
+        if (confirmations) {
+            pm.confirmations = confirmations;
         }
         this.http.request('merchant/build-transaction', pm, net).then(resp => {
             if (resp.status !== 200 || resp.data.code !== 200) {
@@ -170,6 +174,27 @@ transactionSDK.prototype.signTransaction = function(guid, transaction, password)
             getRequest.onerror = function() {
                 reject(getRequest.error);
             };
+        }).catch(error => {
+            reject(error);
+        });
+    });
+    return retPromise;
+};
+
+/**
+ * Convert arguement.
+ *
+ * @param {String} type - type.
+ * @param {String} value - value.
+ */
+transactionSDK.prototype.convertArgument = function(type, value) {
+    let retPromise = new Promise((resolve, reject) => {
+        let data = {};
+        data.type = type;
+        data.raw_data = JSON.stringify({value});
+        convertArgument(data).then((res) => {
+            let jsonData = JSON.parse(res.data);
+            resolve(jsonData);
         }).catch(error => {
             reject(error);
         });

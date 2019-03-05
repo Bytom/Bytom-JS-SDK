@@ -12,7 +12,7 @@ export function serverHttp(host) {
                 Accept: 'application/json',
             },
             data: body,
-            timeout: 10000
+            timeout: 25000
         };
 
         //return Promise
@@ -31,7 +31,7 @@ export function http(baseUrl, token) {
                 Accept: 'application/json',
             },
             data: body,
-            timeout: 1000
+            timeout: 25000
         };
 
         if (this.token) {
