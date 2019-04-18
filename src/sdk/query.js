@@ -1,5 +1,9 @@
 import { handleAxiosError } from '../utils/http';
 
+/**
+ * Represents a querySDK.
+ * @constructor
+ */
 function querySDK(bytom) {
     this.bytom =bytom; 
     this.http = bytom.serverHttp;

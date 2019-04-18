@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>api/transactions.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="accountsApi.html">accountsApi</a><ul class='methods'><li data-type='method'><a href="accountsApi.html#create">create</a></li><li data-type='method'><a href="accountsApi.html#listAddressesByAlias">listAddressesByAlias</a></li><li data-type='method'><a href="accountsApi.html#listAddressesById">listAddressesById</a></li><li data-type='method'><a href="accountsApi.html#listAll">listAll</a></li></ul></li><li><a href="accountsSDK.html">accountsSDK</a><ul class='methods'><li data-type='method'><a href="accountsSDK.html#createAccount">createAccount</a></li><li data-type='method'><a href="accountsSDK.html#createAccountReceiver">createAccountReceiver</a></li><li data-type='method'><a href="accountsSDK.html#createAccountReceiverUseServer">createAccountReceiverUseServer</a></li><li data-type='method'><a href="accountsSDK.html#createAccountUseServer">createAccountUseServer</a></li><li data-type='method'><a href="accountsSDK.html#listAccountUseServer">listAccountUseServer</a></li><li data-type='method'><a href="accountsSDK.html#listAddressUseServer">listAddressUseServer</a></li></ul></li><li><a href="balancesApi.html">balancesApi</a><ul class='methods'><li data-type='method'><a href="balancesApi.html#list">list</a></li></ul></li><li><a href="keysApi.html">keysApi</a><ul class='methods'><li data-type='method'><a href="keysApi.html#create">create</a></li></ul></li><li><a href="keysSDK.html">keysSDK</a><ul class='methods'><li data-type='method'><a href="keysSDK.html#create">create</a></li><li data-type='method'><a href="keysSDK.html#createPubkey">createPubkey</a></li><li data-type='method'><a href="keysSDK.html#getKeyByXPub">getKeyByXPub</a></li><li data-type='method'><a href="keysSDK.html#list">list</a></li><li data-type='method'><a href="keysSDK.html#resetKeyPassword">resetKeyPassword</a></li></ul></li><li><a href="querySDK.html">querySDK</a><ul class='methods'><li data-type='method'><a href="querySDK.html#asset">asset</a></li><li data-type='method'><a href="querySDK.html#getblockcount">getblockcount</a></li><li data-type='method'><a href="querySDK.html#listUtxo">listUtxo</a></li></ul></li><li><a href="transactionsApi.html">transactionsApi</a><ul class='methods'><li data-type='method'><a href="transactionsApi.html#build">build</a></li><li data-type='method'><a href="transactionsApi.html#estimateGas">estimateGas</a></li><li data-type='method'><a href="transactionsApi.html#listByAccountId">listByAccountId</a></li><li data-type='method'><a href="transactionsApi.html#listById">listById</a></li><li data-type='method'><a href="transactionsApi.html#sign">sign</a></li><li data-type='method'><a href="transactionsApi.html#submit">submit</a></li></ul></li><li><a href="transactionSDK.html">transactionSDK</a><ul class='methods'><li data-type='method'><a href="transactionSDK.html#buildPayment">buildPayment</a></li><li data-type='method'><a href="transactionSDK.html#buildTransaction">buildTransaction</a></li><li data-type='method'><a href="transactionSDK.html#convertArgument">convertArgument</a></li><li data-type='method'><a href="transactionSDK.html#list">list</a></li><li data-type='method'><a href="transactionSDK.html#signTransaction">signTransaction</a></li><li data-type='method'><a href="transactionSDK.html#submitPayment">submitPayment</a></li></ul></li><li><a href="walletSDK.html">walletSDK</a><ul class='methods'><li data-type='method'><a href="walletSDK.html#backup">backup</a></li><li data-type='method'><a href="walletSDK.html#restore">restore</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">api/transactions.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Represents a transactionsApi.
+ * @constructor
+ */
+function transactionsApi(http) {
+    this.http = http;
+}
+
+/**
+ * List all local transactions by account id.
+ * 
+ * @see https://github.com/Bytom/bytom/wiki/API-Reference#list-transactions
+ * 
+ * @param {String} accountId - Account id.
+ */
+transactionsApi.prototype.listByAccountId = function(accountId) {
+    return this.http.request('/list-transactions', {account_id: accountId});
+};
+
+/**
+ * List local transactions by id.
+ * 
+ * @see https://github.com/Bytom/bytom/wiki/API-Reference#list-transactions
+ * 
+ * @param {String} id - The transaction id.
+ */
+transactionsApi.prototype.listById = function(id) {
+    return this.http.request('/list-transactions', {id});
+};
+
+/**
+ * Build transaction.
+ * 
+ * @see https://github.com/Bytom/bytom/wiki/API-Reference#build-transaction
+ * 
+ * @param {String} baseTransaction - base data for the transaction, default is null.
+ * @param {Object} actions - Set of actions to compose the transaction.
+ * @param {Integer} timeRange - time stamp(block height)is maximum survival time for the transaction, the transaction will be not submit into block after this time stamp.
+ * @param {Integer} ttl - integer of the time to live in milliseconds, it means utxo will be reserved(locked) for builded transaction in this time range, if the transaction will not to be submitted into block, it will be auto unlocked for build transaction again after this ttl time. it will be set to 5 minutes(300 seconds) defaultly when ttl is 0.
+ */
+transactionsApi.prototype.build = function(baseTransaction, actions, timeRange, ttl) {
+    return this.http.request('/build-transaction', {
+        base_transaction: baseTransaction,
+        time_range: timeRange,
+        actions,
+        ttl
+    });
+};
+
+/**
+ * Sign transaction.
+ * 
+ * @see https://github.com/Bytom/bytom/wiki/API-Reference#sign-transaction
+ * 
+ * @param {Object} transaction - The built transaction template.
+ * @param {String} password - signature of the password.
+ */
+transactionsApi.prototype.sign = function(transaction, password) {
+    return this.http.request('/sign-transaction', {transaction, password});
+};
+
+/**
+ * Submit a signed transaction to the blockchain.
+ * 
+ * @see https://github.com/Bytom/bytom/wiki/API-Reference#submit-transaction·
+ * 
+ * @param {String} rawTransaction - raw_transaction of signed transaction.
+ */
+transactionsApi.prototype.submit = function(rawTransaction) {
+    return this.http.request('/submit-transaction', {raw_transaction: rawTransaction});
+};
+
+/**
+ * Estimate consumed neu(1BTM = 10^8NEU) for the transaction.
+ * 
+ * @see https://github.com/Bytom/bytom/wiki/API-Reference#estimate-transaction-gas
+ * 
+ * @param {Object} transaction - builded transaction response.
+ */
+transactionsApi.prototype.estimateGas = function(transaction) {
+    return this.http.request('estimate-transaction-gas', {transaction_template: transaction});
+};
+
+export default transactionsApi;</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Apr 18 2019 14:32:33 GMT+0800 (CST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

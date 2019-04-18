@@ -8,11 +8,17 @@
     "SDK",
     "WebAssembly"
   ],
+  "scripts": {
+    "docs": "jsdoc -c jsdoc.conf.json"
+  },
   "dependencies": {
     "axios": "^0.18.0",
     "eslint": "^5.6.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "jsdoc": "^3.5.5",
+    "docdash": "^1.1.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Bytom/Bytom-JS-SDK.git"

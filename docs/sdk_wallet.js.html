@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>sdk/wallet.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="accountsApi.html">accountsApi</a><ul class='methods'><li data-type='method'><a href="accountsApi.html#create">create</a></li><li data-type='method'><a href="accountsApi.html#listAddressesByAlias">listAddressesByAlias</a></li><li data-type='method'><a href="accountsApi.html#listAddressesById">listAddressesById</a></li><li data-type='method'><a href="accountsApi.html#listAll">listAll</a></li></ul></li><li><a href="accountsSDK.html">accountsSDK</a><ul class='methods'><li data-type='method'><a href="accountsSDK.html#createAccount">createAccount</a></li><li data-type='method'><a href="accountsSDK.html#createAccountReceiver">createAccountReceiver</a></li><li data-type='method'><a href="accountsSDK.html#createAccountReceiverUseServer">createAccountReceiverUseServer</a></li><li data-type='method'><a href="accountsSDK.html#createAccountUseServer">createAccountUseServer</a></li><li data-type='method'><a href="accountsSDK.html#listAccountUseServer">listAccountUseServer</a></li><li data-type='method'><a href="accountsSDK.html#listAddressUseServer">listAddressUseServer</a></li></ul></li><li><a href="balancesApi.html">balancesApi</a><ul class='methods'><li data-type='method'><a href="balancesApi.html#list">list</a></li></ul></li><li><a href="keysApi.html">keysApi</a><ul class='methods'><li data-type='method'><a href="keysApi.html#create">create</a></li></ul></li><li><a href="keysSDK.html">keysSDK</a><ul class='methods'><li data-type='method'><a href="keysSDK.html#create">create</a></li><li data-type='method'><a href="keysSDK.html#createPubkey">createPubkey</a></li><li data-type='method'><a href="keysSDK.html#getKeyByXPub">getKeyByXPub</a></li><li data-type='method'><a href="keysSDK.html#list">list</a></li><li data-type='method'><a href="keysSDK.html#resetKeyPassword">resetKeyPassword</a></li></ul></li><li><a href="querySDK.html">querySDK</a><ul class='methods'><li data-type='method'><a href="querySDK.html#asset">asset</a></li><li data-type='method'><a href="querySDK.html#getblockcount">getblockcount</a></li><li data-type='method'><a href="querySDK.html#listUtxo">listUtxo</a></li></ul></li><li><a href="transactionsApi.html">transactionsApi</a><ul class='methods'><li data-type='method'><a href="transactionsApi.html#build">build</a></li><li data-type='method'><a href="transactionsApi.html#estimateGas">estimateGas</a></li><li data-type='method'><a href="transactionsApi.html#listByAccountId">listByAccountId</a></li><li data-type='method'><a href="transactionsApi.html#listById">listById</a></li><li data-type='method'><a href="transactionsApi.html#sign">sign</a></li><li data-type='method'><a href="transactionsApi.html#submit">submit</a></li></ul></li><li><a href="transactionSDK.html">transactionSDK</a><ul class='methods'><li data-type='method'><a href="transactionSDK.html#buildPayment">buildPayment</a></li><li data-type='method'><a href="transactionSDK.html#buildTransaction">buildTransaction</a></li><li data-type='method'><a href="transactionSDK.html#convertArgument">convertArgument</a></li><li data-type='method'><a href="transactionSDK.html#list">list</a></li><li data-type='method'><a href="transactionSDK.html#signTransaction">signTransaction</a></li><li data-type='method'><a href="transactionSDK.html#submitPayment">submitPayment</a></li></ul></li><li><a href="walletSDK.html">walletSDK</a><ul class='methods'><li data-type='method'><a href="walletSDK.html#backup">backup</a></li><li data-type='method'><a href="walletSDK.html#restore">restore</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">sdk/wallet.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {initDB, getDB} from '../db/db';
+
+/**
+ * Represents a transactionSDK.
+ * @constructor
+ */
+function walletSDK(bytom) {
+    this.bytom = bytom;
+}
+
+let backupDBList = ['keys', 'addresses', 'accounts', 'accounts-server', 'addresses-server'];
+
+/**
+ * backup wallet.
+ */
+walletSDK.prototype.backup = function() {
+    let retPromise = new Promise((resolve, reject) => {
+        initDB().then(() =>{
+            let walletImage = {};
+            let promiseList = [];
+            for (let index = 0; index &lt; backupDBList.length; ++index) {
+                promiseList.push(backupDB(backupDBList[index]));
+            }
+            Promise.all(promiseList).then(res => {
+                for(let index = 0; index &lt; res.length; ++index) {
+                    let data = res[index];
+                    if (data.length > 0) {
+                        walletImage[backupDBList[index]] = data;
+                    }
+                }
+                resolve(JSON.stringify(walletImage));
+            }).catch(error => {
+                reject(error);
+            });
+        });
+    });
+    return retPromise;
+};
+
+/**
+ * Restore wallet.
+ *
+ * @param {String} walletImage
+ */
+walletSDK.prototype.restore = function(walletImage) {
+    let retPromise = new Promise((resolve, reject) => {
+        this.bytom.sdk.keys.list().then(keys => {
+            if (keys.length &lt;=0) {
+                let data = JSON.parse(walletImage);
+                let promiseList = [];
+                for (let key in data) {
+                    if (!data.hasOwnProperty(key) || backupDBList.indexOf(key) === -1) {
+                        continue;
+                    }
+                    promiseList.push(restoreDB(key, data[key]));
+                }
+                let retData = {};
+            
+                Promise.all(promiseList).then(res => {
+                    for(let index = 0; index &lt; res.length; ++index) {
+                        let data = res[index];
+                        retData[data.name] = data.err;
+                    }
+                    resolve(retData);
+                }).catch(err => {
+                    reject(err);
+                });
+            } else {
+                reject(new Error('The wallet already has account data. Can\'t restore.'));
+            }
+        }).catch(error => {
+            reject(error);
+        });
+    });
+    return retPromise;
+};
+
+function backupDB(dbname) {
+    let ret = new Promise((resolve, reject) => {
+        getDB().then(db => {
+            let transaction = db.transaction([dbname], 'readonly');
+            let objectStore = transaction.objectStore(dbname);
+            let oc = objectStore.openCursor();
+            let data = [];
+            oc.onsuccess = function (event) {
+                var cursor = event.target.result;
+                if (cursor) {
+                    data.push(cursor.value);
+                    cursor.continue();
+                } else {
+                    resolve(data);
+                }
+            };
+            oc.onerror = function(e){
+                reject(e);
+            };
+        }).catch(err => {
+            reject(err);
+        });
+    });
+    return ret;
+}
+
+function restoreDB(dbname, data) {
+    let ret = new Promise((resolve, reject) => {
+        getDB().then(db => {
+            let index = 0;
+            let errList = [];
+            batchAdd();
+
+            function batchAdd() {
+                if (index >= data.length) {
+                    let r = {name: dbname, err: errList};
+                    resolve(r);
+                    return;
+                }
+                let transaction = db.transaction([dbname], 'readwrite');
+                let objectStore = transaction.objectStore(dbname);
+                let req = objectStore.add(data[index]);
+                req.onsuccess = batchAdd;
+                req.onerror = function() {
+                    // if error continue add
+                    errList.push(req.error);
+                    batchAdd();
+                };
+                index++;
+            }
+        }).catch(err => {
+            reject(err);
+        });
+    });
+    return ret;
+}
+
+export default walletSDK;</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Apr 18 2019 14:32:33 GMT+0800 (CST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

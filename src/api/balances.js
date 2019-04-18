@@ -1,6 +1,6 @@
-
 /**
- * balances Api
+ * Represents a balancesApi.
+ * @constructor
  */
 function balancesApi(http) {
     this.http = http;

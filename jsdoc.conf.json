@@ -1,0 +1,17 @@
+{
+  "source": {
+    "include": ["./src"]
+  },
+  "opts": {
+    "readme": "./README.md",
+    "destination": "./docs",
+    "recurse": true,
+    "template": "./node_modules/docdash"
+  },
+  "templates": {
+    "systemName": "Bytom Js SDK",
+    "theme": "cosmo",
+    "linenums": true
+  },
+  "plugins": ["plugins/markdown"]
+}

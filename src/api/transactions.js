@@ -1,8 +1,6 @@
-
 /**
- * transactions api
- * 
- * @param {Object} http 
+ * Represents a transactionsApi.
+ * @constructor
  */
 function transactionsApi(http) {
     this.http = http;

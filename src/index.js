@@ -35,7 +35,7 @@ function Bytom(serverHost, wasmPath, baseURL, token) {
 /**
  * Get net type;
  *
- * @returns
+ * @returns Network
  */
 Bytom.prototype.getNetType = function() {
     return this.net;
@@ -45,6 +45,7 @@ Bytom.prototype.getNetType = function() {
  * Set net type
  *
  * @param {String} net net type (main test)
+ * @returns {Promise}
  */
 Bytom.prototype.setNetType = function(net) {
     this.net = net;

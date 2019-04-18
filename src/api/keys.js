@@ -1,3 +1,7 @@
+/**
+ * Represents a keysApi.
+ * @constructor
+ */
 function keysApi(http) {
     this.http = http;
 }
