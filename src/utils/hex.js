@@ -25,3 +25,16 @@ export function hexStringToByte(str) {
     
     return new Uint8Array(a);
 }
+
+export function hexEncode(string) {
+    var hex, i;
+
+    var result = '';
+    for (i=0; i< string.length; i++) {
+        hex = string.charCodeAt(i).toString(16);
+        result += (hex).slice(-4);
+    }
+
+    return result;
+}
+
