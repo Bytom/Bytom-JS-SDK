@@ -6,46 +6,40 @@ function accountsApi(http) {
     this.http = http;
 }
 
+
 /**
  * Create a new account.
- * 
- * @see https://github.com/Bytom/bytom/wiki/API-Reference#create-account
- * 
- * @param {String[]} xpubs - root_xpubs, pubkey array.
- * @param {Integer} quorum - The number of keys required to sign transactions for the account.
- * @param {String} alias  - Account alias.
- * @returns {Promise}
+ *
+ * @param {Object} params - Parameters for accounts create.
+ * @param {String} params.pubkey - key pubkey,
+ * @param {String} params.label  - Optional. Account alias.
+ * @param {String} params.email - Optional. The account email
+ * @returns {Promise} Guid, address, label
  */
-accountsApi.prototype.create = function(xpubs, quorum, alias) {
-    return this.http.request('/create-account', {root_xpubs: xpubs, quorum, alias});
+accountsApi.prototype.create = function(params) {
+    return this.http.request('account/create-account', params);
 };
 
 /**
- * List all accounts in the target Bytom node.
- * @returns {Promise}
+ * Create a new address.
+ *
+ * @param {Object} params - Parameters for address create.
+ * @param {String} params.guid - AccountID,
+ * @param {String} params.label  - Optional. Account alias.
+ * @returns {Promise} Guid, address, label
  */
-accountsApi.prototype.listAll = function() {
-    return this.http.request('/list-accounts', {});
-};
-
-/**
- * List all addresses for one account.
- * 
- * @param {String} accountId - id of account.
- * @returns {Promise}
- */
-accountsApi.prototype.listAddressesById = function(accountId) {
-    return this.http.request('/list-addresses', {account_id: accountId});
+accountsApi.prototype.createAddress = function(params) {
+    return this.http.request('account/create-address', params);
 };
 
 /**
  * List all addresses for one account.
  * 
- * @param {String} accountAlias - alias of account.
- * @returns {Promise}
+ * @param {String} Guid - id of account.
+ * @returns {Promise} Array of Object, with Guid, Address, label, Balance.
  */
-accountsApi.prototype.listAddressesByAlias = function(accountAlias) {
-    return this.http.request('/list-addresses', {account_alias: accountAlias});
+accountsApi.prototype.listAddresses = function(Guid) {
+    return this.http.request('account/list-addresses', {Guid});
 };
 
 export default accountsApi;

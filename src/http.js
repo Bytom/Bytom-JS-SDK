@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {handleApiError} from "./utils/http";
 
 const basePath = 'api/v1/btm/';
 
@@ -20,13 +21,12 @@ export function serverHttp(host) {
     };
 }
 
-export function http(baseUrl, token) {
+export function http(baseUrl) {
     this.baseUrl = baseUrl;
-    this.token = token;
-    this.request = function(path, body) {
+    this.request = function(path, body, method) {
         var config = {
-            url: `${this.baseUrl}${path}`,
-            method: 'POST',
+            url: `${this.baseUrl}${basePath}${path}`,
+            method:  method ? method : 'POST' ,
             headers: {
                 Accept: 'application/json',
             },
@@ -34,17 +34,17 @@ export function http(baseUrl, token) {
             timeout: 25000
         };
 
-        if (this.token) {
-            config.headers.Authorization = `Basic ${btoa(this.token)}`;
-        }
         //return Promise
-        return axios.request(config).then(function(resp){
-            if (resp.data.status === 'fail') {
-                throw resp.data.msg;
-            } else if (resp.data.status === 'success') {
-                return resp.data.data;
-            }
-            return resp.data;
-        });
+        return axios.request(config)
+            .then(function(resp){
+                if (resp.status !== 200 || resp.data.code !== 200) {
+                    throw handleApiError(resp);
+                } else if (resp.data.code === 200) {
+                    return resp.data.result.data;
+                }
+                return resp.data;
+            }).catch(error=>{
+                throw error;
+            });
     };
 }

@@ -2,83 +2,85 @@
  * Represents a transactionsApi.
  * @constructor
  */
+import {convertArguements} from '../utils/convertArguement';
+
 function transactionsApi(http) {
     this.http = http;
 }
 
 /**
- * List all local transactions by account id.
- * 
- * @see https://github.com/Bytom/bytom/wiki/API-Reference#list-transactions
- * 
- * @param {String} accountId - Account id.
+ * List local transactions by id.
+ *
+ * @param {Object} params - list transactions with account information.
+ * @param {String} params.Guid - Transaction related account id.
+ * @param {Object} params.filter - Optional, filter condition amount or time.
+ * @param {String} params.sort - Optional, sort condition.
  */
-transactionsApi.prototype.listByAccountId = function(accountId) {
-    return this.http.request('/list-transactions', {account_id: accountId});
+transactionsApi.prototype.list = function(params) {
+    return this.http.request('account/list-transactions', params);
 };
 
 /**
- * List local transactions by id.
- * 
- * @see https://github.com/Bytom/bytom/wiki/API-Reference#list-transactions
- * 
- * @param {String} id - The transaction id.
+ * Build Payment.
+ *
+ * @param {Object} params - Parameters for build payment.
+ * @param {String} params.guid - Account Guid.
+ * @param {String} params.asset - Asset ID.
+ * @param {Number} params.amount - Amount in neu.
+ * @param {String} params.to - send to address
+ * @param {Number} params.fee - Gas fee.
+ * @param {Number} params.confirmations - Confirmations.
+ *
+ * @return {promise} Object with raw_transaction, signing_instructions, fee
  */
-transactionsApi.prototype.listById = function(id) {
-    return this.http.request('/list-transactions', {id});
+transactionsApi.prototype.buildPayment = function(params) {
+    return this.http.request('/merchant/build-payment', params);
 };
 
 /**
  * Build transaction.
- * 
- * @see https://github.com/Bytom/bytom/wiki/API-Reference#build-transaction
- * 
- * @param {String} baseTransaction - base data for the transaction, default is null.
- * @param {Object} actions - Set of actions to compose the transaction.
- * @param {Integer} timeRange - time stamp(block height)is maximum survival time for the transaction, the transaction will be not submit into block after this time stamp.
- * @param {Integer} ttl - integer of the time to live in milliseconds, it means utxo will be reserved(locked) for builded transaction in this time range, if the transaction will not to be submitted into block, it will be auto unlocked for build transaction again after this ttl time. it will be set to 5 minutes(300 seconds) defaultly when ttl is 0.
+ *
+ * @param {Object} params - Parameters for build transaction.
+ * @param {String} params.guid - Account Guid.
+ * @param {String} params.asset - Asset ID.
+ * @param {Object[]} params.inputs - Amount in neu.
+ * @param {Object[]} params.outputs - send to address
+ * @param {Number} params.fee - Gas fee.
+ * @param {Number} params.confirmations - Confirmations.
+ *
+ * @return {promise} Object with raw_transaction, signing_instructions, fee
  */
-transactionsApi.prototype.build = function(baseTransaction, actions, timeRange, ttl) {
-    return this.http.request('/build-transaction', {
-        base_transaction: baseTransaction,
-        time_range: timeRange,
-        actions,
-        ttl
-    });
+transactionsApi.prototype.buildTransaction = function(params) {
+    return this.http.request('/merchant/build-transaction', params);
 };
 
 /**
- * Sign transaction.
- * 
- * @see https://github.com/Bytom/bytom/wiki/API-Reference#sign-transaction
- * 
- * @param {Object} transaction - The built transaction template.
- * @param {String} password - signature of the password.
+ * convert contract argument.
+ *
+ * @param {Object} obj - Argument Object
+ * @param {String} obj.type - Argument Type, included data, address, string, integer, boolean.
+ * @param {String|Number|Boolean}- obj.raw_data.value - data value
  */
-transactionsApi.prototype.sign = function(transaction, password) {
-    return this.http.request('/sign-transaction', {transaction, password});
-};
+transactionsApi.prototype.convertArguement = function (obj) {
+    return convertArguements(obj);
+}
 
 /**
  * Submit a signed transaction to the blockchain.
  * 
  * @see https://github.com/Bytom/bytom/wiki/API-Reference#submit-transaction·
- * 
- * @param {String} rawTransaction - raw_transaction of signed transaction.
+ *
+ * @param {Object} params - Parameters for build payment.
+ * @param {String} params.guid - Account Id.
+ * @param {String} params.raw_transaction - raw_transaction of signed transaction.
+ * @param {String[]} params.signatures - transaction signature
+ * @param {String} params.memo - custom memo that only saved in the server.
+ *
+ * @return {promise} transaction_hash
  */
-transactionsApi.prototype.submit = function(rawTransaction) {
-    return this.http.request('/submit-transaction', {raw_transaction: rawTransaction});
+transactionsApi.prototype.submit = function(params) {
+    return this.http.request('/account/submit-payment', params);
 };
 
-/**
- * Estimate consumed neu(1BTM = 10^8NEU) for the transaction.
- * 
- * @see https://github.com/Bytom/bytom/wiki/API-Reference#estimate-transaction-gas
- * 
- * @param {Object} transaction - builded transaction response.
- */
-transactionsApi.prototype.estimateGas = function(transaction) {
-    return this.http.request('estimate-transaction-gas', {transaction_template: transaction});
-};
 
 export default transactionsApi;

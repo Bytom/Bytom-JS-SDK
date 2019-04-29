@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Home - Documentation</title>
+    <title>api/query.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -31,52 +31,59 @@
 
 <div id="main">
     
+    <h1 class="page-title">api/query.js</h1>
+    
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Represents a balancesApi.
+ * @constructor
+ */
+function queryApi(http) {
+    this.http = http;
+}
 
-
-    <section class="package">
-        <h3> </h3>		
-    </section>
-
-
-
-
-
-
-
-
-
-    
-
-
-
-    <section class="readme">
-        <article><h1>Bytom-JS-SDK</h1><p><a href="https://www.npmjs.com/package/bytom-js-sdk"><img src="https://img.shields.io/npm/v/bytom-js-sdk.svg?style=flat-square" alt="npm version"></a></p>
-<h2>Install</h2><pre class="prettyprint source lang-bash"><code>npm install bytom-js-sdk</code></pre><h2>Use</h2><pre class="prettyprint source lang-javascript"><code>let net = {
-    main: &quot;http://main-net-host/&quot;,
-    test: &quot;http://test-net-host/&quot;
+/**
+ * List Utxo
+ *
+ * @param {Object} params - list Utxo condition.
+ * @param {Object} params.filter,
+ *                  - script
+ *                  - asset
+ * @param {Object} params.sort,
+ *                  - by
+ *                  - order
+ * @returns {Promise} hash, asset, amount
+ */
+queryApi.prototype.listUTXO =function(params) {
+    return this.http.request('q/list-utxo', params);
 };
-let bytom = new Bytom(net, chrome.runtime.getURL(&quot;main.wasm&quot;));
 
-//set Bytom net type (main test), default main net.
-bytom.setNetType('test');
-console.log(bytom.getNetType());
+/**
+ * list all asset
+ * @returns {Promise} assetID, assetAlias, price
+ */
+queryApi.prototype.listAsset =function() {
+    return this.http.request('q/asset', {}, 'GET');
+};
 
-//create key
-bytom.sdk.keys.create(&quot;test_alias&quot;, &quot;123456&quot;).then((res)=>{
-    console.log(res)
-}).catch(error => {
-    console.log(error)
-});</code></pre><h2>WebAssembly build</h2><p>Project depends on WebAssembly. \
-See <a href="https://github.com/oysheng/Bytom-WebAssembly">Bytom-WebAssembly</a>.</p></article>
+/**
+ * get current block status
+ * @returns {Promise} block_height, block_hash
+ */
+queryApi.prototype.getblockstatus =function() {
+    return this.http.request('q/chain-status', {}, 'GET');
+};
+
+export default queryApi;</code></pre>
+        </article>
     </section>
-
-
 
 
 

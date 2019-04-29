@@ -1,4 +1,4 @@
-import keysApi from './api/keys.js';
+import queryApi from './api/query.js';
 import accountsApi from './api/accounts.js';
 import transactionsApi from './api/transactions.js';
 import keysSDK from './sdk/keys.js';
@@ -8,14 +8,14 @@ import walletSDK from './sdk/wallet.js';
 import querySDK from './sdk/query.js';
 import {serverHttp, http} from './http.js';
 
-function Bytom(serverHost, wasmPath, baseURL, token) {
+function Bytom(serverHost, wasmPath, baseURL) {
     this.install = function(Vue) {
         Vue.prototype.$Bytom = this;
     };
     
     if(baseURL) {
-        this.http = new http(baseURL, token);
-        this.keys = new keysApi(this.http);
+        this.http = new http(baseURL);
+        this.query = new queryApi(this.http);
         this.accounts = new accountsApi(this.http);
         this.transactions = new transactionsApi(this.http);
     }

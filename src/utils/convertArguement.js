@@ -1,5 +1,5 @@
 import { hexEncode } from './hex.js';
-import bech32 from 'bech32'
+import bech32 from 'bech32';
 
 export function convertArguements(obj){
     const type = obj.type;
