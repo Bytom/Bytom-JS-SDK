@@ -26,7 +26,7 @@
 
 <nav >
     
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="accountsApi.html">accountsApi</a><ul class='methods'><li data-type='method'><a href="accountsApi.html#create">create</a></li><li data-type='method'><a href="accountsApi.html#createAddress">createAddress</a></li><li data-type='method'><a href="accountsApi.html#listAddresses">listAddresses</a></li></ul></li><li><a href="queryApi.html">queryApi</a><ul class='methods'><li data-type='method'><a href="queryApi.html#getblockstatus">getblockstatus</a></li><li data-type='method'><a href="queryApi.html#listAsset">listAsset</a></li><li data-type='method'><a href="queryApi.html#listUTXO">listUTXO</a></li></ul></li><li><a href="transactionsApi.html">transactionsApi</a><ul class='methods'><li data-type='method'><a href="transactionsApi.html#buildPayment">buildPayment</a></li><li data-type='method'><a href="transactionsApi.html#buildTransaction">buildTransaction</a></li><li data-type='method'><a href="transactionsApi.html#list">list</a></li><li data-type='method'><a href="transactionsApi.html#submit">submit</a></li></ul></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="accountsApi.html">accountsApi</a><ul class='methods'><li data-type='method'><a href="accountsApi.html#create">create</a></li><li data-type='method'><a href="accountsApi.html#createAddress">createAddress</a></li><li data-type='method'><a href="accountsApi.html#listAddresses">listAddresses</a></li></ul></li><li><a href="queryApi.html">queryApi</a><ul class='methods'><li data-type='method'><a href="queryApi.html#getblockstatus">getblockstatus</a></li><li data-type='method'><a href="queryApi.html#listAsset">listAsset</a></li><li data-type='method'><a href="queryApi.html#listUTXO">listUTXO</a></li></ul></li><li><a href="transactionsApi.html">transactionsApi</a><ul class='methods'><li data-type='method'><a href="transactionsApi.html#buildPayment">buildPayment</a></li><li data-type='method'><a href="transactionsApi.html#buildTransaction">buildTransaction</a></li><li data-type='method'><a href="transactionsApi.html#convertArguement">convertArguement</a></li><li data-type='method'><a href="transactionsApi.html#list">list</a></li><li data-type='method'><a href="transactionsApi.html#submit">submit</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -70,7 +70,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_transactions.js.html">api/transactions.js</a>, <a href="api_transactions.js.html#line5">line 5</a>
+        <a href="api_transactions.js.html">api/transactions.js</a>, <a href="api_transactions.js.html#line7">line 7</a>
     </li></ul></dd>
     
 
@@ -166,7 +166,7 @@
 
     
 
-    <h4 class="name" id="buildPayment"><span class="type-signature"></span>buildPayment<span class="signature">(guid, asset, amount, to, fee, confirmations)</span><span class="type-signature"> &rarr; {promise}</span></h4>
+    <h4 class="name" id="buildPayment"><span class="type-signature"></span>buildPayment<span class="signature">(params)</span><span class="type-signature"> &rarr; {promise}</span></h4>
 
     
 
@@ -178,7 +178,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_transactions.js.html">api/transactions.js</a>, <a href="api_transactions.js.html#line33">line 33</a>
+        <a href="api_transactions.js.html">api/transactions.js</a>, <a href="api_transactions.js.html#line36">line 36</a>
     </li></ul></dd>
     
 
@@ -233,6 +233,48 @@
 
     <h5>Parameters:</h5>
     
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>params</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Parameters for build payment.</p>
+                <h6>Properties</h6>
+                
 
 <table class="params">
     <thead>
@@ -394,6 +436,13 @@
     </tbody>
 </table>
 
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
 
 
 
@@ -439,7 +488,7 @@
 
     
 
-    <h4 class="name" id="buildTransaction"><span class="type-signature"></span>buildTransaction<span class="signature">(guid, asset, inputs, outputs, fee, confirmations)</span><span class="type-signature"> &rarr; {promise}</span></h4>
+    <h4 class="name" id="buildTransaction"><span class="type-signature"></span>buildTransaction<span class="signature">(params)</span><span class="type-signature"> &rarr; {promise}</span></h4>
 
     
 
@@ -451,7 +500,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_transactions.js.html">api/transactions.js</a>, <a href="api_transactions.js.html#line57">line 57</a>
+        <a href="api_transactions.js.html">api/transactions.js</a>, <a href="api_transactions.js.html#line53">line 53</a>
     </li></ul></dd>
     
 
@@ -506,6 +555,48 @@
 
     <h5>Parameters:</h5>
     
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>params</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Parameters for build transaction.</p>
+                <h6>Properties</h6>
+                
 
 <table class="params">
     <thead>
@@ -667,6 +758,13 @@
     </tbody>
 </table>
 
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
 
 
 
@@ -712,7 +810,7 @@
 
     
 
-    <h4 class="name" id="list"><span class="type-signature"></span>list<span class="signature">(Guid, filter, sort)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="convertArguement"><span class="type-signature"></span>convertArguement<span class="signature">(obj)</span><span class="type-signature"></span></h4>
 
     
 
@@ -724,7 +822,270 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_transactions.js.html">api/transactions.js</a>, <a href="api_transactions.js.html#line16">line 16</a>
+        <a href="api_transactions.js.html">api/transactions.js</a>, <a href="api_transactions.js.html#line65">line 65</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>convert contract argument.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>obj</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Argument Object</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Argument Type, included data, address, string, integer, boolean.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>raw_data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Object Raw Data</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+|
+
+<span class="param-type">Number</span>
+|
+
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>data value</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="list"><span class="type-signature"></span>list<span class="signature">(params)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_transactions.js.html">api/transactions.js</a>, <a href="api_transactions.js.html#line19">line 19</a>
     </li></ul></dd>
     
 
@@ -802,6 +1163,48 @@
 
         <tr>
             
+                <td class="name"><code>params</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>list transactions with account information.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
                 <td class="name"><code>Guid</code></td>
             
 
@@ -818,7 +1221,7 @@
 
             
 
-            <td class="description last"><p>The account id.</p></td>
+            <td class="description last"><p>Transaction related account id.</p></td>
         </tr>
 
     
@@ -841,7 +1244,7 @@
 
             
 
-            <td class="description last"><p>The account id.</p></td>
+            <td class="description last"><p>Optional, filter condition amount or time.</p></td>
         </tr>
 
     
@@ -864,7 +1267,14 @@
 
             
 
-            <td class="description last"><p>The account id.</p></td>
+            <td class="description last"><p>Optional, sort condition.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -894,7 +1304,7 @@
 
     
 
-    <h4 class="name" id="submit"><span class="type-signature"></span>submit<span class="signature">(guid, raw_transaction, signatures, memo)</span><span class="type-signature"> &rarr; {promise}</span></h4>
+    <h4 class="name" id="submit"><span class="type-signature"></span>submit<span class="signature">(params)</span><span class="type-signature"> &rarr; {promise}</span></h4>
 
     
 
@@ -906,7 +1316,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_transactions.js.html">api/transactions.js</a>, <a href="api_transactions.js.html#line92">line 92</a>
+        <a href="api_transactions.js.html">api/transactions.js</a>, <a href="api_transactions.js.html#line82">line 82</a>
     </li></ul></dd>
     
 
@@ -968,6 +1378,48 @@
 
     <h5>Parameters:</h5>
     
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>params</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Parameters for build payment.</p>
+                <h6>Properties</h6>
+                
 
 <table class="params">
     <thead>
@@ -1053,7 +1505,7 @@
 
             
 
-            <td class="description last"><p>-</p></td>
+            <td class="description last"><p>transaction signature</p></td>
         </tr>
 
     
@@ -1077,6 +1529,13 @@
             
 
             <td class="description last"><p>custom memo that only saved in the server.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -1143,7 +1602,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Apr 25 2019 15:38:51 GMT+0800 (CST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Apr 29 2019 10:37:11 GMT+0800 (CST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
