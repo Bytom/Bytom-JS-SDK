@@ -3,10 +3,6 @@ import { handleApiError, handleAxiosError } from '../utils/http';
 import { getDB } from '../db/db';
 import keysSDK from "./keys";
 
-/**
- * Represents a transactionSDK.
- * @constructor
- */
 function transactionSDK(bytom) {
     this.http = bytom.serverHttp;
     this.bytom = bytom;
@@ -82,19 +78,19 @@ transactionSDK.prototype.submitPayment = function(guid, raw_transaction, signatu
  * @param {String} to destination address
  * @param {String} asset hexdecimal asset id
  * @param {Number} amount transfer amount
- * @param {String} from source address
  * @param {Number} fee transaction fee amount
+ * @param {Number} confirmations - transaction confirmations
  * @returns {Promise}
  */
-transactionSDK.prototype.buildPayment = function(guid, to, asset, amount, from, fee) {
+transactionSDK.prototype.buildPayment = function(guid, to, asset, amount, fee, confirmations) {
     let net = this.bytom.net;
     let retPromise = new Promise((resolve, reject) => {
         let pm = {guid: guid, to: to, asset: asset, amount: amount};
-        if (from) {
-            pm.from = from;
-        }
         if (fee) {
             pm.fee = fee;
+        }
+        if (confirmations) {
+            pm.confirmations = confirmations;
         }
         this.http.request('merchant/build-payment', pm, net).then(resp => {
             if (resp.status !== 200 || resp.data.code !== 200) {

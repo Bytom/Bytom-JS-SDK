@@ -1,9 +1,5 @@
 import {initDB, getDB} from '../db/db';
 
-/**
- * Represents a transactionSDK.
- * @constructor
- */
 function walletSDK(bytom) {
     this.bytom = bytom;
 }

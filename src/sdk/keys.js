@@ -2,10 +2,6 @@ import {createKey, resetKeyPassword, createPubkey} from '../wasm/func';
 import {getDB} from '../db/db';
 
 
-/**
- * Represents a keysSDK.
- * @constructor
- */
 function keysSDK() {
 }
 

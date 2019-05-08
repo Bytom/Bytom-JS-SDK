@@ -2,10 +2,7 @@ import {getDB} from '../db/db';
 import {createAccount, createAccountReceiver} from '../wasm/func';
 import {handleApiError, handleAxiosError} from '../utils/http';
 
-/**
- * Represents a accountSDK.
- * @constructor
- */
+
 function accountsSDK(bytom){
     this.http = bytom.serverHttp;
     this.bytom = bytom;

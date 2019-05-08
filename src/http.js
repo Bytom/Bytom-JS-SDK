@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {handleApiError} from "./utils/http";
+import {handleApiError} from './utils/http';
 
 const basePath = 'api/v1/btm/';
 

@@ -1,6 +1,7 @@
 import queryApi from './api/query.js';
 import accountsApi from './api/accounts.js';
 import transactionsApi from './api/transactions.js';
+import keysApi from './api/keys.js';
 import keysSDK from './sdk/keys.js';
 import accountsSDK from './sdk/accounts.js';
 import transactionSDK from './sdk/transaction.js';
@@ -17,6 +18,7 @@ function Bytom(serverHost, wasmPath, baseURL) {
         this.http = new http(baseURL);
         this.query = new queryApi(this.http);
         this.accounts = new accountsApi(this.http);
+        this.keys = new keysApi(this.http);
         this.transactions = new transactionsApi(this.http);
     }
 

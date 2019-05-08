@@ -1,9 +1,9 @@
+import {convertArguements} from '../utils/convertArguement';
+
 /**
  * Represents a transactionsApi.
  * @constructor
  */
-import {convertArguements} from '../utils/convertArguement';
-
 function transactionsApi(http) {
     this.http = http;
 }
@@ -59,7 +59,8 @@ transactionsApi.prototype.buildTransaction = function(params) {
  *
  * @param {Object} obj - Argument Object
  * @param {String} obj.type - Argument Type, included data, address, string, integer, boolean.
- * @param {String|Number|Boolean}- obj.raw_data.value - data value
+ * @param {Object} obj.raw_data - Object Raw Data
+ * @param {String|Number|Boolean} obj.raw_data.value - data value
  */
 transactionsApi.prototype.convertArguement = function (obj) {
     return convertArguements(obj);
