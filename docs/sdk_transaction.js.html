@@ -41,7 +41,7 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import {convertArgument, signTransaction1} from '../wasm/func';
+            <pre class="prettyprint source linenums"><code>import {convertArgument, signTransaction} from '../wasm/func';
 import { handleApiError, handleAxiosError } from '../utils/http';
 import { getDB } from '../db/db';
 import keysSDK from "./keys";
@@ -205,7 +205,7 @@ transactionSDK.prototype.signTransaction = function(guid, transaction, password)
                 }
                 bytom.sdk.keys.getKeyByXPub(e.target.result.rootXPub).then(res => {
                     let pm = {transaction: transaction, password: password, key: res};
-                    signTransaction1(pm).then(res => {
+                    signTransaction(pm).then(res => {
                         resolve(JSON.parse(res.data));
                     }).catch(err => {
                         reject(err);

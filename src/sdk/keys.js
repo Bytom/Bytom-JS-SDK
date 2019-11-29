@@ -1,4 +1,4 @@
-import {createKey, resetKeyPassword, createPubkey} from '../wasm/func';
+import {createKey, resetKeyPassword, createPubkey, signMessage, signTransaction} from '../wasm/func';
 import {getDB} from '../db/db';
 
 
@@ -176,6 +176,64 @@ keysSDK.prototype.createPubkey = function(xpub) {
         createPubkey(data).then((res) => {
             let jsonData = JSON.parse(res.data);
             resolve(jsonData);
+        }).catch(error => {
+            reject(error);
+        });
+    });
+    return retPromise;
+};
+
+/**
+ * Sign Message.
+ *
+ * @param {String} message - message.
+ * @param {String} password - password.
+ * @param {Object} address - address.
+ */
+keysSDK.prototype.signMessage = function(message, password, address) {
+    let retPromise = new Promise((resolve, reject) => {
+        getDB().then(db => {
+            let getRequest = db.transaction(['accounts-server'], 'readonly')
+                .objectStore('accounts-server')
+                .getAll()
+
+            getRequest.onsuccess = function (e) {
+                const result = getRequest.result.filter(obj => obj.address === address)
+                if (result.length === 0) {
+                    reject(new Error('not found address'));
+                    return;
+                }
+
+                const rootXpub = result[0].rootXPub
+                let keyObject = db.transaction(['keys'], 'readonly')
+                    .objectStore('keys')
+                    .index('xpub')
+                    .get(rootXpub);
+
+                keyObject.onsuccess = function (e) {
+                    if (!e.target.result) {
+                        reject(new Error('not found xpub'));
+                        return;
+                    }
+
+                    let data = {};
+                    data.message = message;
+                    data.password = password;
+                    data.key = e.target.result.key;
+                    signMessage(data).then((res) => {
+                        let jsonData = JSON.parse(res.data);
+                        resolve(jsonData);
+                    }).catch(error => {
+                        reject(error);
+                    });
+                };
+                keyObject.onerror = function () {
+                    reject(getRequest.error);
+                };
+            };
+            getRequest.onerror = function () {
+                reject(getRequest.error);
+            };
         }).catch(error => {
             reject(error);
         });

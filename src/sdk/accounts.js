@@ -22,6 +22,7 @@ accountsSDK.prototype.listAccountUseServer = function() {
             let keyRange = IDBKeyRange.only(net);
             let oc = objectStore.openCursor(keyRange);
             let ret = [];
+
             oc.onsuccess = function (event) {
                 var cursor = event.target.result;
                 if (cursor) {
@@ -51,14 +52,7 @@ accountsSDK.prototype.listAccountUseServer = function() {
  */
 accountsSDK.prototype.listAddressUseServer = function(guid) {
     let net = this.bytom.net;
-    let retPromise = new Promise((resolve, reject) => {
-        this.http.request('account/list-addresses', {guid:guid}, net).then(resp => {
-            resolve(resp.data.result.data);
-        }).catch(error => {
-            reject(handleAxiosError(error));
-        });
-    });
-    return retPromise;
+    return this.http.request('account/list-addresses', {guid:guid}, net);
 };
 /**
  * Create a new address for a wallet.
@@ -76,11 +70,7 @@ accountsSDK.prototype.createAccountReceiverUseServer = function(guid, label) {
             pm.label = label;
         }
         this.http.request('account/new-address', pm, net).then(resp => {
-            if (resp.status !== 200 || resp.data.code !== 200) {
-                reject(handleApiError(resp));
-                return;
-            }
-            let dbData = resp.data.result.data;
+            let dbData = resp;
             dbData.guid = guid;
             dbData.net = net;
             getDB().then(db => {
@@ -130,11 +120,7 @@ accountsSDK.prototype.createAccountUseServer = function(rootXPub, alias, label) 
                     pm.label = label;
                 }
                 that.http.request('account/create', pm, net).then(resp => {
-                    if (resp.status !== 200 || resp.data.code !== 200) {
-                        reject(handleApiError(resp));
-                        return;
-                    }
-                    let dbData = resp.data.result.data;
+                    let dbData = resp;
                     dbData.rootXPub = rootXPub;
                     dbData.alias = alias;
                     dbData.net = net;
@@ -165,6 +151,103 @@ accountsSDK.prototype.createAccountUseServer = function(rootXPub, alias, label) 
             getRequest.onerror = function() {
                 reject(getRequest.error);
             };
+        }).catch(err => {
+            reject(err);
+        });
+    });
+    return retPromise;
+};
+
+/**
+ * Create a wallet using a public key. Each wallet is identified by a guid. (by server)
+ *
+ * @param {String} guid
+ * @param {String} coin type of coin
+ * @returns {Promise}
+ */
+accountsSDK.prototype.copyAccountUseServer = function(guid, coin) {
+    let net = this.bytom.net;
+    let that = this;
+    let retPromise = new Promise((resolve, reject) => {
+        let pm = {guid};
+        if (coin) {
+            pm.coin = coin;
+        }
+
+        that.http.request('account/copy', pm, net).then(resp => {
+            getDB().then(db => {
+                let objectStore = db.transaction(['accounts-server'], 'readwrite').objectStore('accounts-server');
+                let index = objectStore.index('guid');
+                let keyRange = IDBKeyRange.only(guid);
+                let getRequest = index.openCursor(keyRange);
+
+                getRequest.onsuccess = function(e) {
+                    const cursor = e.target.result;
+                    if(cursor){
+                        const accountObject = cursor.value;
+
+                        accountObject.vpAddress = resp.address;
+                        const request = cursor.update(accountObject);
+                        request.onsuccess = function () {
+                            resolve(accountObject);
+                        };
+                        request.onerror = function () {
+                            reject(request.error);
+                        };
+                    }
+                };
+                getRequest.onerror = function() {
+                    reject(getRequest.error);
+                };
+            }).catch(err => {
+                throw (err);
+            });
+        }).catch(err => {
+            reject(err);
+        });
+    });
+    return retPromise;
+};
+
+/**
+ * list a wallet using a guid. Each wallet is identified by a guid. (by server)
+ *
+ * @param {String} guid
+ * @param {String} coin type of coin
+ * @returns {Promise}
+ */
+accountsSDK.prototype.listVaporAccountUseServer = function(guid) {
+    let net = this.bytom.net;
+    let that = this;
+    let retPromise = new Promise((resolve, reject) => {
+        that.http.request('account/list-addresses', {guid:guid}, net).then(resp => {
+            getDB().then(db => {
+                let objectStore = db.transaction(['accounts-server'], 'readwrite').objectStore('accounts-server');
+                let index = objectStore.index('guid');
+                let keyRange = IDBKeyRange.only(guid);
+                let getRequest = index.openCursor(keyRange);
+
+                getRequest.onsuccess = function(e) {
+                    const cursor = e.target.result;
+                    if(cursor){
+                        const accountObject = cursor.value;
+
+                        accountObject.vpAddress = resp[0].address;
+                        const request = cursor.update(accountObject);
+                        request.onsuccess = function () {
+                            resolve(accountObject);
+                        };
+                        request.onerror = function () {
+                            reject(request.error);
+                        };
+                    }
+                };
+                getRequest.onerror = function() {
+                    reject(getRequest.error);
+                };
+            }).catch(err => {
+                throw (err);
+            });
         }).catch(err => {
             reject(err);
         });

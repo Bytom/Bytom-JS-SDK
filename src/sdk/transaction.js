@@ -1,7 +1,6 @@
-import {convertArgument, signTransaction1} from '../wasm/func';
+import {convertArgument, signTransaction} from '../wasm/func';
 import { handleApiError, handleAxiosError } from '../utils/http';
 import { getDB } from '../db/db';
-import keysSDK from "./keys";
 
 function transactionSDK(bytom) {
     this.http = bytom.serverHttp;
@@ -14,34 +13,34 @@ function transactionSDK(bytom) {
  *
  * @see https://gist.github.com/HAOYUatHZ/0c7446b8f33e7cddd590256b3824b08f#apiv1btmmerchantlist-transactions
  * @param {String} guid unique id for each wallet
- * @param {String} address (optional) if provided, will only return transactions the address is related to
+ * @param {String} filter (optional) if provided, will only return transactions the filter condition is related to
+ * @param {String} sort (optional) if provided, will only return transactions the sort condition is related to
  * @param {Number} start page start
  * @param {Number} limit page limit
  * @returns {Promise}
  */
-transactionSDK.prototype.list = function(guid, address, start, limit) {
+transactionSDK.prototype.list = function(guid, filter,sort, start, limit) {
     let net = this.bytom.net;
-    let retPromise = new Promise((resolve, reject) => {
-        let pm = {guid: guid};
-        if (address) {
-            pm.address = address;
-        }
-        let url = 'merchant/list-transactions';
-        let args = new URLSearchParams();
-        if (typeof start !== 'undefined') {
-            args.append('start', start);
-        }
-        if (limit) {
-            args.append('limit', limit);
-        }
-        url = url + '?' + args.toString();
-        this.http.request(url, pm, net).then(resp => {
-            resolve(resp.data);
-        }).catch(err => {
-            reject(handleAxiosError(err));
-        });
-    });
-    return retPromise;
+    let pm = {guid: guid};
+
+    if (filter) {
+        pm.filter = filter;
+    }
+
+    if (sort) {
+        pm.sort = sort;
+    }
+
+    let url = 'merchant/list-transactions';
+    let args = new URLSearchParams();
+    if (typeof start !== 'undefined') {
+        args.append('start', start);
+    }
+    if (limit) {
+        args.append('limit', limit);
+    }
+    url = url + '?' + args.toString();
+    return this.http.request(url, pm, net);
 };
 
 /**
@@ -54,19 +53,8 @@ transactionSDK.prototype.list = function(guid, address, start, limit) {
  */
 transactionSDK.prototype.submitPayment = function(guid, raw_transaction, signatures) {
     let net = this.bytom.net;
-    let retPromise = new Promise((resolve, reject) => {
-        let pm = {guid: guid, raw_transaction: raw_transaction, signatures: signatures};
-        this.http.request('merchant/submit-payment', pm, net).then(resp => {
-            if (resp.status !== 200 || resp.data.code !== 200) {
-                reject(handleApiError(resp));
-                return;
-            }
-            resolve(resp.data);
-        }).catch(err => {
-            reject(handleAxiosError(err));
-        });
-    });
-    return retPromise;
+    let pm = {guid: guid, raw_transaction: raw_transaction, signatures: signatures};
+    return this.http.request('merchant/submit-payment', pm, net);
 };
 
 /**
@@ -82,27 +70,111 @@ transactionSDK.prototype.submitPayment = function(guid, raw_transaction, signatu
  * @param {Number} confirmations - transaction confirmations
  * @returns {Promise}
  */
-transactionSDK.prototype.buildPayment = function(guid, to, asset, amount, fee, confirmations) {
+transactionSDK.prototype.buildPayment = function(guid, to, asset, amount, fee, confirmations, memo, forbidChainTx) {
     let net = this.bytom.net;
-    let retPromise = new Promise((resolve, reject) => {
-        let pm = {guid: guid, to: to, asset: asset, amount: amount};
-        if (fee) {
-            pm.fee = fee;
-        }
-        if (confirmations) {
-            pm.confirmations = confirmations;
-        }
-        this.http.request('merchant/build-payment', pm, net).then(resp => {
-            if (resp.status !== 200 || resp.data.code !== 200) {
-                reject(handleApiError(resp));
-                return;
-            }
-            resolve(resp.data);
-        }).catch(err => {
-            reject(handleAxiosError(err));
-        });
-    });
-    return retPromise;
+    let pm = {
+        guid: guid,
+        asset: asset,
+        recipients: {},
+        forbid_chain_tx: false
+    };
+
+    pm['recipients'][`${to}`] = amount
+
+    if (memo) {
+        pm.memo = memo;
+    }
+    if (forbidChainTx) {
+        pm.forbid_chain_tx = forbidChainTx;
+    }
+    if (fee) {
+        pm.fee = fee;
+    }
+    if (confirmations) {
+        pm.confirmations = confirmations;
+    }
+    return this.http.request('merchant/build-payment', pm, net);
+};
+
+/**
+ * Build a cross chain transaction.
+ *
+ * @param {String} guid unique id for each wallet
+ * @param {String} to destination address
+ * @param {String} asset hexdecimal asset id
+ * @param {Number} amount transfer amount
+ * @param {Number} confirmations - transaction confirmations
+ * @returns {Promise}
+ */
+transactionSDK.prototype.buildCrossChain = function(guid, to, asset, amount, confirmations, forbidChainTx) {
+    let net = this.bytom.net;
+
+    let pm = {
+        guid: guid,
+        asset: asset,
+        recipients: {},
+        forbid_chain_tx: false
+    };
+
+    pm['recipients'][`${to}`] = amount
+
+    if (forbidChainTx) {
+        pm.forbid_chain_tx = forbidChainTx;
+    }
+
+    return this.http.request('merchant/build-crosschain', pm, net);
+};
+
+/**
+ * Build a Vote transaction.
+ *
+ * @param {String} guid unique id for each wallet
+ * @param {String} vote pubkey vote
+ * @param {String} memo memo key
+ * @param {Number} amount transfer amount
+ * @param {Number} confirmations - transaction confirmations
+ * @returns {Promise}
+ */
+transactionSDK.prototype.buildVote = function(guid, vote, amount, confirmations, memo, forbidChainTx) {
+    let net = this.bytom.net;
+    let pm = {guid, vote, amount: amount, forbid_chain_tx: false};
+    if (confirmations) {
+        pm.confirmations = confirmations;
+    }
+    if (memo) {
+        pm.memo = memo;
+    }
+    if (forbidChainTx) {
+      pm.forbid_chain_tx = forbidChainTx;
+    }
+
+    return this.http.request('merchant/build-vote', pm, net);
+};
+
+/**
+ * Build a Veto transaction.
+ *
+ * @param {String} guid unique id for each wallet
+ * @param {String} vote pubkey vote
+ * @param {String} memo memo key
+ * @param {Number} amount transfer amount
+ * @param {Number} confirmations - transaction confirmations
+ * @returns {Promise}
+ */
+transactionSDK.prototype.buildVeto = function(guid, vote, amount, confirmations, memo,  forbidChainTx) {
+    let net = this.bytom.net;
+    let pm = {guid, vote, amount: amount, forbid_chain_tx: false};
+    if (confirmations) {
+        pm.confirmations = confirmations;
+    }
+    if (memo) {
+        pm.memo = memo;
+    }
+      if (forbidChainTx) {
+        pm.forbid_chain_tx = forbidChainTx;
+      }
+
+    return this.http.request('merchant/build-veto', pm, net);
 };
 
 /**
@@ -115,29 +187,18 @@ transactionSDK.prototype.buildPayment = function(guid, to, asset, amount, fee, c
  */
 transactionSDK.prototype.buildTransaction = function(guid, inputs, outputs, fee, confirmations ) {
     let net = this.bytom.net;
-    let retPromise = new Promise((resolve, reject) => {
-        let pm = {
-            guid,
-            inputs,
-            outputs,
-        };
-        if (fee) {
-            pm.fee = fee;
-        }
-        if (confirmations) {
-            pm.confirmations = confirmations;
-        }
-        this.http.request('merchant/build-transaction', pm, net).then(resp => {
-            if (resp.status !== 200 || resp.data.code !== 200) {
-                reject(handleApiError(resp));
-                return;
-            }
-            resolve(resp.data);
-        }).catch(err => {
-            reject(handleAxiosError(err));
-        });
-    });
-    return retPromise;
+    let pm = {
+        guid,
+        inputs,
+        outputs,
+    };
+    if (fee) {
+        pm.fee = fee;
+    }
+    if (confirmations) {
+        pm.confirmations = confirmations;
+    }
+    return this.http.request('merchant/build-transaction', pm, net);
 };
 
 /**
@@ -162,7 +223,7 @@ transactionSDK.prototype.signTransaction = function(guid, transaction, password)
                 }
                 bytom.sdk.keys.getKeyByXPub(e.target.result.rootXPub).then(res => {
                     let pm = {transaction: transaction, password: password, key: res};
-                    signTransaction1(pm).then(res => {
+                    signTransaction(pm).then(res => {
                         resolve(JSON.parse(res.data));
                     }).catch(err => {
                         reject(err);

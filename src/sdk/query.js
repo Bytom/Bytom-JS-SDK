@@ -1,5 +1,3 @@
-import { handleAxiosError } from '../utils/http';
-
 function querySDK(bytom) {
     this.bytom =bytom; 
     this.http = bytom.serverHttp;
@@ -11,14 +9,7 @@ function querySDK(bytom) {
  */
 querySDK.prototype.asset = function(asset_id) {
     let net = this.bytom.net;
-    let retPromise = new Promise((resolve, reject) => {
-        this.http.request('q/asset?id=' + asset_id, null, net, 'GET').then(resp => {
-            resolve(resp.data);
-        }).catch(err => {
-            reject(handleAxiosError(err));
-        });
-    });
-    return retPromise;
+    return this.http.request('q/asset?id=' + asset_id, null, net, 'GET');
 };
 
 /**
@@ -26,14 +17,7 @@ querySDK.prototype.asset = function(asset_id) {
  */
 querySDK.prototype.getblockcount = function() {
     let net = this.bytom.net;
-    let retPromise = new Promise((resolve, reject) => {
-        this.http.request('q/chain-status', null, net, 'GET').then(resp => {
-            resolve(resp.data);
-        }).catch(err => {
-            reject(handleAxiosError(err));
-        });
-    });
-    return retPromise;
+    return this.http.request('q/chain-status', null, net, 'GET');
 };
 
 /**
@@ -41,14 +25,16 @@ querySDK.prototype.getblockcount = function() {
  */
 querySDK.prototype.listUtxo = function(object) {
     let net = this.bytom.net;
-    let retPromise = new Promise((resolve, reject) => {
-        this.http.request('q/list-utxos',object, net,  'POST').then(resp => {
-            resolve(resp.data);
-        }).catch(err => {
-            reject(handleAxiosError(err));
-        });
-    });
-    return retPromise;
+    return this.http.request('q/list-utxos',object, net,  'POST');
+};
+
+/**
+ * Query the vote status.
+ * vapor only
+ */
+querySDK.prototype.getVoteStatus = function() {
+    let net = this.bytom.net;
+    return this.http.request('q/get-vote-status',null, net,  'GET');
 };
 
 export default querySDK;
