@@ -19,8 +19,30 @@ walletSDK.prototype.backup = function() {
                 account_image:{ assets:[] },
                 asset_image:{ slices:[] }
             };
-            backupDB('keys').then(data => {
-                walletImage['key_images']['xkeys'] = data.map(a => JSON.parse(a.key));
+
+
+            let promiseList = [];
+            for(let dbName of backupDBList){
+                promiseList.push(backupDB(dbName));
+            }
+
+            Promise.all([promiseList]).then(([keyData, AccountData]) =>{
+                walletImage['key_images']['xkeys'] = keyData.map(a => JSON.parse(a.key));
+                walletImage['account_image']['assets'] = AccountData.map(a => {
+                    return {
+                        'account':{
+                            'type':'account',
+                            'xpubs':[
+                                a.rootXPub
+                            ],
+                            'quorum':1,
+                            'id':'byone-',
+                            'alias':a.alias,
+                            'keyIndex':1
+                        },'contractIndex':1
+                    };
+                });
+
                 resolve(JSON.stringify(walletImage));
             }).catch(error => {
                 reject(error);
@@ -36,49 +58,26 @@ walletSDK.prototype.backup = function() {
  * @param {String} walletImage
  */
 walletSDK.prototype.restore = function(keystore, password) {
-    const walletImage = JSON.parse(keystore)
+    const walletImage = JSON.parse(keystore);
     let net = this.bytom.net;
+
+    let keys;
     if(walletImage.key_images && walletImage.key_images.xkeys){
-        let promiseList = [];
-        for (let key of walletImage.key_images.xkeys){
-            const pubkey = restoreFromKeyStore(key, password);
-            promiseList.push(this.http.request('account/list-wallets', {pubkey}, net).catch(e => {throw e}));
-        }
-
-        return Promise.all(promiseList).then(resp => resp.guid);
-
-    }else{
-        let retPromise = new Promise((resolve, reject) => {
-            this.bytom.sdk.keys.list().then(keys => {
-                if (keys.length <=0) {
-                    let data = JSON.parse(walletImage);
-                    let promiseList = [];
-                    for (let key in data) {
-                        if (!data.hasOwnProperty(key) || backupDBList.indexOf(key) === -1) {
-                            continue;
-                        }
-                        promiseList.push(restoreDB(key, data[key]));
-                    }
-                    let retData = {};
-
-                    Promise.all(promiseList).then(res => {
-                        for(let index = 0; index < res.length; ++index) {
-                            let data = res[index];
-                            retData[data.name] = data.err;
-                        }
-                        resolve(retData);
-                    }).catch(err => {
-                        reject(err);
-                    });
-                } else {
-                    reject(new Error('The wallet already has account data. Can\'t restore.'));
-                }
-            }).catch(error => {
-                reject(error);
-            });
-        });
-        return retPromise;
+        keys = walletImage.key_images.xkeys;
     }
+
+    // match older version of backups keystore files
+    else{
+        keys = walletImage.keys.map(keyItem => JSON.parse( keyItem.key ) );
+    }
+
+    let promiseList = [];
+    for (let index = 0; index< keys.length; index++ ){
+        const pubkey = restoreFromKeyStore(keys[index], password[index]);
+        promiseList.push(this.http.request('account/list-wallets', {pubkey}, net).catch(e => {throw e;}));
+    }
+    return Promise.all(promiseList).then(resp => resp.guid);
+
 };
 
 function backupDB(dbname) {
