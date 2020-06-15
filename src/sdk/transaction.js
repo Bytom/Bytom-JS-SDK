@@ -19,9 +19,9 @@ function transactionSDK(bytom) {
  * @param {Number} limit page limit
  * @returns {Promise}
  */
-transactionSDK.prototype.list = function(guid, filter,sort, start, limit) {
+transactionSDK.prototype.list = function(address, filter,sort, start, limit) {
     let net = this.bytom.net;
-    let pm = {guid: guid};
+    let pm = {}
 
     if (filter) {
         pm.filter = filter;
@@ -31,13 +31,16 @@ transactionSDK.prototype.list = function(guid, filter,sort, start, limit) {
         pm.sort = sort;
     }
 
-    let url = 'merchant/list-transactions';
+    let url = 'merchant/transactions';
     let args = new URLSearchParams();
     if (typeof start !== 'undefined') {
         args.append('start', start);
     }
     if (limit) {
         args.append('limit', limit);
+    }
+    if (address) {
+        args.append('address', address);
     }
     url = url + '?' + args.toString();
     return this.http.request(url, pm, net);
@@ -51,10 +54,10 @@ transactionSDK.prototype.list = function(guid, filter,sort, start, limit) {
  * @param {String} raw_transaction raw transaction bytes encoded to string
  * @param {Array} signatures signed data of each signing instruction
  */
-transactionSDK.prototype.submitPayment = function(guid, raw_transaction, signatures) {
+transactionSDK.prototype.submitPayment = function(address, raw_transaction, signatures) {
     let net = this.bytom.net;
-    let pm = {guid: guid, raw_transaction: raw_transaction, signatures: signatures};
-    return this.http.request('merchant/submit-payment', pm, net);
+    let pm = {raw_transaction: raw_transaction, signatures: signatures};
+    return this.http.request(`merchant/submit-payment?address=${address}`, pm, net);
 };
 
 /**
@@ -70,10 +73,9 @@ transactionSDK.prototype.submitPayment = function(guid, raw_transaction, signatu
  * @param {Number} confirmations - transaction confirmations
  * @returns {Promise}
  */
-transactionSDK.prototype.buildPayment = function(guid, to, asset, amount, fee, confirmations, memo, forbidChainTx) {
+transactionSDK.prototype.buildPayment = function(address, to, asset, amount, fee, confirmations, memo, forbidChainTx) {
     let net = this.bytom.net;
     let pm = {
-        guid: guid,
         asset: asset,
         recipients: {},
         forbid_chain_tx: false
@@ -93,7 +95,7 @@ transactionSDK.prototype.buildPayment = function(guid, to, asset, amount, fee, c
     if (confirmations) {
         pm.confirmations = confirmations;
     }
-    return this.http.request('merchant/build-payment', pm, net);
+    return this.http.request(`merchant/build-payment?address=${address}`, pm, net);
 };
 
 /**
@@ -106,11 +108,10 @@ transactionSDK.prototype.buildPayment = function(guid, to, asset, amount, fee, c
  * @param {Number} confirmations - transaction confirmations
  * @returns {Promise}
  */
-transactionSDK.prototype.buildCrossChain = function(guid, to, asset, amount, confirmations, forbidChainTx) {
+transactionSDK.prototype.buildCrossChain = function(address, to, asset, amount, confirmations, forbidChainTx) {
     let net = this.bytom.net;
 
     let pm = {
-        guid: guid,
         asset: asset,
         recipients: {},
         forbid_chain_tx: false
@@ -122,7 +123,7 @@ transactionSDK.prototype.buildCrossChain = function(guid, to, asset, amount, con
         pm.forbid_chain_tx = forbidChainTx;
     }
 
-    return this.http.request('merchant/build-crosschain', pm, net);
+    return this.http.request(`merchant/build-crosschain?address=${address}`, pm, net);
 };
 
 /**
@@ -135,9 +136,9 @@ transactionSDK.prototype.buildCrossChain = function(guid, to, asset, amount, con
  * @param {Number} confirmations - transaction confirmations
  * @returns {Promise}
  */
-transactionSDK.prototype.buildVote = function(guid, vote, amount, confirmations, memo, forbidChainTx) {
+transactionSDK.prototype.buildVote = function(address, vote, amount, confirmations, memo, forbidChainTx) {
     let net = this.bytom.net;
-    let pm = {guid, vote, amount: amount, forbid_chain_tx: false};
+    let pm = {vote, amount: amount, forbid_chain_tx: false};
     if (confirmations) {
         pm.confirmations = confirmations;
     }
@@ -148,7 +149,7 @@ transactionSDK.prototype.buildVote = function(guid, vote, amount, confirmations,
       pm.forbid_chain_tx = forbidChainTx;
     }
 
-    return this.http.request('merchant/build-vote', pm, net);
+    return this.http.request(`merchant/build-vote?address=${address}`, pm, net);
 };
 
 /**
@@ -161,9 +162,9 @@ transactionSDK.prototype.buildVote = function(guid, vote, amount, confirmations,
  * @param {Number} confirmations - transaction confirmations
  * @returns {Promise}
  */
-transactionSDK.prototype.buildVeto = function(guid, vote, amount, confirmations, memo,  forbidChainTx) {
+transactionSDK.prototype.buildVeto = function(address, vote, amount, confirmations, memo,  forbidChainTx) {
     let net = this.bytom.net;
-    let pm = {guid, vote, amount: amount, forbid_chain_tx: false};
+    let pm = { vote, amount: amount, forbid_chain_tx: false};
     if (confirmations) {
         pm.confirmations = confirmations;
     }
@@ -174,7 +175,7 @@ transactionSDK.prototype.buildVeto = function(guid, vote, amount, confirmations,
         pm.forbid_chain_tx = forbidChainTx;
       }
 
-    return this.http.request('merchant/build-veto', pm, net);
+    return this.http.request(`merchant/build-veto?address=${address}`, pm, net);
 };
 
 /**
@@ -185,12 +186,12 @@ transactionSDK.prototype.buildVeto = function(guid, vote, amount, confirmations,
  * @param {Number} fee transaction fee amount
  * @returns {Promise}
  */
-transactionSDK.prototype.buildTransaction = function(guid, inputs, outputs, fee, confirmations ) {
+transactionSDK.prototype.buildTransaction = function(address, inputs, outputs, fee, confirmations, forbid_chain_tx = true) {
     let net = this.bytom.net;
     let pm = {
-        guid,
         inputs,
         outputs,
+        forbid_chain_tx
     };
     if (fee) {
         pm.fee = fee;
@@ -198,7 +199,7 @@ transactionSDK.prototype.buildTransaction = function(guid, inputs, outputs, fee,
     if (confirmations) {
         pm.confirmations = confirmations;
     }
-    return this.http.request('merchant/build-transaction', pm, net);
+    return this.http.request(`merchant/build-advanced-tx?address=${address}`, pm, net);
 };
 
 /**

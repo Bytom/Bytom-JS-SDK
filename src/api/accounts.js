@@ -17,7 +17,7 @@ function accountsApi(http) {
  * @returns {Promise} Guid, address, label
  */
 accountsApi.prototype.create = function(params) {
-    return this.http.request('account/create-account', params);
+    return this.http.request('account/create', params);
 };
 
 /**

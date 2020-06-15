@@ -198,7 +198,7 @@ keysSDK.prototype.signMessage = function(message, password, address) {
                 .getAll()
 
             getRequest.onsuccess = function (e) {
-                const result = getRequest.result.filter(obj => obj.address === address)
+                const result = getRequest.result.filter(obj => (obj.address === address || obj.vpAddress === address))
                 if (result.length === 0) {
                     reject(new Error('not found address'));
                     return;

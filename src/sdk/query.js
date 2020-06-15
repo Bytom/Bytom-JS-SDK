@@ -34,7 +34,7 @@ querySDK.prototype.listUtxo = function(object) {
  */
 querySDK.prototype.getVoteStatus = function() {
     let net = this.bytom.net;
-    return this.http.request('q/get-vote-status',null, net,  'GET');
+    return this.http.request('q/vote-status',null, net,  'GET');
 };
 
 export default querySDK;
