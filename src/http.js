@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {handleApiError, handleAxiosError} from './utils/http';
+import { camelize } from "./utils/utils";
 
 // const basePath = 'api/v1/btm';
 
@@ -22,7 +23,7 @@ export function serverHttp(host) {
                 if (resp.status !== 200 || resp.data.code !== 200) {
                     throw handleApiError(resp);
                 } else if (resp.data.code === 200) {
-                    return resp.data.result.data;
+                    return camelize(resp.data.data);
                 }
                 return resp.data;
             }).catch(error=>{
@@ -50,7 +51,7 @@ export function http(baseUrl) {
                 if (resp.status !== 200 || resp.data.code !== 200) {
                     throw handleApiError(resp);
                 } else if (resp.data.code === 200) {
-                    return resp.data.result.data;
+                    return camelize(resp.data.data);
                 }
                 return resp.data;
             }).catch(error=>{

@@ -50,9 +50,9 @@ accountsSDK.prototype.listAccountUseServer = function() {
  * @param {String} guid
  * @returns {Promise} list of all addresses
  */
-accountsSDK.prototype.listAddressUseServer = function(guid) {
+accountsSDK.prototype.listAddressUseServer = function(address) {
     let net = this.bytom.net;
-    return this.http.request('account/list-addresses', {guid:guid}, net);
+    return this.http.request(`account/address?address=${address}`, '', net, 'GET');
 };
 /**
  * Create a new address for a wallet.
@@ -220,7 +220,7 @@ accountsSDK.prototype.listVaporAccountUseServer = function(guid) {
     let net = this.bytom.net;
     let that = this;
     let retPromise = new Promise((resolve, reject) => {
-        that.http.request('account/list-addresses', {guid:guid}, net).then(resp => {
+        that.http.request('account/addresses', {address:address}, net).then(resp => {
             getDB().then(db => {
                 let objectStore = db.transaction(['accounts-server'], 'readwrite').objectStore('accounts-server');
                 let index = objectStore.index('guid');
