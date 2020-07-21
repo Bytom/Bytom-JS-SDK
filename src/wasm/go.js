@@ -16,37 +16,37 @@ export function LoadWasm() {
     // Map web browser API and Node.js API to a single common API (preferring web standards over Node.js API).
     let outputBuf = '';
     global.fs = {
-        constants: { O_WRONLY: -1, O_RDWR: -1, O_CREAT: -1, O_TRUNC: -1, O_APPEND: -1, O_EXCL: -1 }, // unused
-        writeSync(fd, buf) {
-            outputBuf += decoder.decode(buf);
-            const nl = outputBuf.lastIndexOf('\n');
-            if (nl != -1) {
-                console.log(outputBuf.substr(0, nl));
-                outputBuf = outputBuf.substr(nl + 1);
-            }
-            return buf.length;
-        },
-        write(fd, buf, offset, length, position, callback) {
-            if (offset !== 0 || length !== buf.length || position !== null) {
-                throw new Error('not implemented');
-            }
-            const n = this.writeSync(fd, buf);
-            callback(null, n);
-        },
-        open(path, flags, mode, callback) {
-            const err = new Error('not implemented');
-            err.code = 'ENOSYS';
-            callback(err);
-        },
-        read(fd, buffer, offset, length, position, callback) {
-            const err = new Error('not implemented');
-            err.code = 'ENOSYS';
-            callback(err);
-        },
-        fsync(fd, callback) {
-            callback(null);
-        },
-    };
+            constants: { O_WRONLY: -1, O_RDWR: -1, O_CREAT: -1, O_TRUNC: -1, O_APPEND: -1, O_EXCL: -1 }, // unused
+            writeSync(fd, buf) {
+                outputBuf += decoder.decode(buf);
+                const nl = outputBuf.lastIndexOf('\n');
+                if (nl != -1) {
+                    console.log(outputBuf.substr(0, nl));
+                    outputBuf = outputBuf.substr(nl + 1);
+                }
+                return buf.length;
+            },
+            write(fd, buf, offset, length, position, callback) {
+                if (offset !== 0 || length !== buf.length || position !== null) {
+                    throw new Error('not implemented');
+                }
+                const n = this.writeSync(fd, buf);
+                callback(null, n);
+            },
+            open(path, flags, mode, callback) {
+                const err = new Error('not implemented');
+                err.code = 'ENOSYS';
+                callback(err);
+            },
+            read(fd, buffer, offset, length, position, callback) {
+                const err = new Error('not implemented');
+                err.code = 'ENOSYS';
+                callback(err);
+            },
+            fsync(fd, callback) {
+                callback(null);
+            },
+        };
 
     const encoder = new TextEncoder('utf-8');
     const decoder = new TextDecoder('utf-8');
@@ -219,7 +219,15 @@ export function LoadWasm() {
                         const id = this._nextCallbackTimeoutID;
                         this._nextCallbackTimeoutID++;
                         this._scheduledTimeouts.set(id, setTimeout(
-                            () => { this._resume(); },
+                            () => {
+                                this._resume();
+                                while (this._scheduledTimeouts.has(id)) {
+                                    // for some reason Go failed to register the timeout event, log and try again
+                                    // (temporary workaround for https://github.com/golang/go/issues/28975)
+                                    console.warn('scheduleTimeoutEvent: missed timeout event');
+                                    this._resume();
+                                }
+                            },
                             getInt64(sp + 8) + 1, // setTimeout has been seen to fire up to 1 millisecond early
                         ));
                         mem().setInt32(sp + 16, id, true);
@@ -333,6 +341,34 @@ export function LoadWasm() {
                         mem().setUint8(sp + 24, loadValue(sp + 8) instanceof loadValue(sp + 16));
                     },
 
+                    // func copyBytesToGo(dst []byte, src ref) (int, bool)
+                    'syscall/js.copyBytesToGo': (sp) => {
+                        const dst = loadSlice(sp + 8);
+                        const src = loadValue(sp + 32);
+                        if (!(src instanceof Uint8Array)) {
+                            mem().setUint8(sp + 48, 0);
+                            return;
+                        }
+                        const toCopy = src.subarray(0, dst.length);
+                        dst.set(toCopy);
+                        setInt64(sp + 40, toCopy.length);
+                        mem().setUint8(sp + 48, 1);
+                    },
+
+                    // func copyBytesToJS(dst ref, src []byte) (int, bool)
+                    'syscall/js.copyBytesToJS': (sp) => {
+                        const dst = loadValue(sp + 8);
+                        const src = loadSlice(sp + 16);
+                        if (!(dst instanceof Uint8Array)) {
+                            mem().setUint8(sp + 48, 0);
+                            return;
+                        }
+                        const toCopy = src.subarray(0, dst.length);
+                        dst.set(toCopy);
+                        setInt64(sp + 40, toCopy.length);
+                        mem().setUint8(sp + 48, 1);
+                    },
+
                     'debug': (value) => {
                         console.log(value);
                     },
@@ -349,7 +385,6 @@ export function LoadWasm() {
                 true,
                 false,
                 global,
-                this._inst.exports.mem,
                 this,
             ];
             this._refs = new Map();
@@ -361,9 +396,13 @@ export function LoadWasm() {
             let offset = 4096;
 
             const strPtr = (str) => {
-                let ptr = offset;
-                new Uint8Array(mem.buffer, offset, str.length + 1).set(encoder.encode(str + '\0'));
-                offset += str.length + (8 - (str.length % 8));
+                const ptr = offset;
+                const bytes = encoder.encode(str + '\0');
+                new Uint8Array(mem.buffer, offset, bytes.length).set(bytes);
+                offset += bytes.length;
+                if (offset % 8 !== 0) {
+                    offset += 8 - (offset % 8);
+                }
                 return ptr;
             };
 
