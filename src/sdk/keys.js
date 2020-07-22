@@ -112,6 +112,31 @@ keysSDK.prototype.list = function() {
 
 /**
  * Create a new key.
+ *
+ * @param {String} alias - User specified, unique identifier.
+ * @param {String} password - User specified, key password.
+ */
+keysSDK.prototype.createKey = function(alias, password) {
+    var normalizedAlias = alias.toLowerCase().trim();
+
+    let data = {};
+    data.alias = normalizedAlias;
+    data.auth = password;
+    return createKey(data).then((res) => {
+        let jsonData = JSON.parse(res.data);
+        let dbData = {
+            key:res.data,
+            xpub:jsonData.xpub,
+            alias:alias,
+        };
+        return dbData;
+    }).catch(error => {
+        throw(error);
+    });
+};
+
+/**
+ * Create a new key.
  * 
  * @param {String} alias - User specified, unique identifier.
  * @param {String} password - User specified, key password.
@@ -195,16 +220,16 @@ keysSDK.prototype.signMessage = function(message, password, address) {
         getDB().then(db => {
             let getRequest = db.transaction(['accounts-server'], 'readonly')
                 .objectStore('accounts-server')
-                .getAll()
+                .getAll();
 
             getRequest.onsuccess = function (e) {
-                const result = getRequest.result.filter(obj => (obj.address === address || obj.vpAddress === address))
+                const result = getRequest.result.filter(obj => (obj.address === address || obj.vpAddress === address));
                 if (result.length === 0) {
                     reject(new Error('not found address'));
                     return;
                 }
 
-                const rootXpub = result[0].rootXPub
+                const rootXpub = result[0].rootXPub;
                 let keyObject = db.transaction(['keys'], 'readonly')
                     .objectStore('keys')
                     .index('xpub')

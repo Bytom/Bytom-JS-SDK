@@ -1,5 +1,5 @@
 import {getDB} from '../db/db';
-import {createAccount, createAccountReceiver} from '../wasm/func';
+import {createAccount, createAccountReceiver, signTransaction} from '../wasm/func';
 import {handleApiError, handleAxiosError} from '../utils/http';
 
 
@@ -339,6 +339,69 @@ accountsSDK.prototype.createAccountReceiver = function(account) {
             };
             request.onerror = function() {
                 reject(request.error);
+            };
+        }).catch(error => {
+            reject(error);
+        });
+    });
+    return retPromise;
+};
+
+/**
+ * create account address
+ *
+ * @param {Object} account createAccount return account Object val
+ * @param {Int} nextIndex
+ * @returns {Promise}
+ */
+accountsSDK.prototype.getAccountXpubById = function(guid) {
+    let retPromise = new Promise((resolve, reject) => {
+        getDB().then(db => {
+            let getRequest = db.transaction(['accounts-server'], 'readonly')
+                .objectStore('accounts-server')
+                .index('guid')
+                .get(guid);
+            getRequest.onsuccess = function(e) {
+                if (!e.target.result) {
+                    reject(new Error('not found guid'));
+                    return;
+                }
+                resolve(e.target.result.rootXPub);
+            };
+            getRequest.onerror = function() {
+                reject(getRequest.error);
+            };
+        }).catch(error => {
+            reject(error);
+        });
+    });
+    return retPromise;
+};
+
+
+/**
+ * create account address
+ *
+ * @param {Object} account createAccount return account Object val
+ * @param {Int} nextIndex
+ * @returns {Promise}
+ */
+accountsSDK.prototype.getAccountXpubByAddress = function(guid) {
+    let retPromise = new Promise((resolve, reject) => {
+        getDB().then(db => {
+            let getRequest = db.transaction(['accounts-server'], 'readonly')
+                .objectStore('accounts-server')
+                .index('guid')
+                .get(guid);
+            getRequest.onsuccess = function(e) {
+                if (!e.target.result) {
+                    reject(new Error('not found guid'));
+                    return;
+                }
+                resolve(e.target.result.rootXPub);
+            };
+            getRequest.onerror = function() {
+                reject(getRequest.error);
             };
         }).catch(error => {
             reject(error);

@@ -21,7 +21,7 @@ function transactionSDK(bytom) {
  */
 transactionSDK.prototype.list = function(address, filter,sort, start, limit) {
     let net = this.bytom.net;
-    let pm = {}
+    let pm = {};
 
     if (filter) {
         pm.filter = filter;
@@ -81,7 +81,7 @@ transactionSDK.prototype.buildPayment = function(address, to, asset, amount, fee
         forbid_chain_tx: false
     };
 
-    pm['recipients'][`${to}`] = amount
+    pm['recipients'][`${to}`] = amount;
 
     if (memo) {
         pm.memo = memo;
@@ -117,7 +117,7 @@ transactionSDK.prototype.buildCrossChain = function(address, to, asset, amount, 
         forbid_chain_tx: false
     };
 
-    pm['recipients'][`${to}`] = amount
+    pm['recipients'][`${to}`] = amount;
 
     if (forbidChainTx) {
         pm.forbid_chain_tx = forbidChainTx;
@@ -146,7 +146,7 @@ transactionSDK.prototype.buildVote = function(address, vote, amount, confirmatio
         pm.memo = memo;
     }
     if (forbidChainTx) {
-      pm.forbid_chain_tx = forbidChainTx;
+        pm.forbid_chain_tx = forbidChainTx;
     }
 
     return this.http.request(`merchant/build-vote?address=${address}`, pm, net);
@@ -171,9 +171,9 @@ transactionSDK.prototype.buildVeto = function(address, vote, amount, confirmatio
     if (memo) {
         pm.memo = memo;
     }
-      if (forbidChainTx) {
+    if (forbidChainTx) {
         pm.forbid_chain_tx = forbidChainTx;
-      }
+    }
 
     return this.http.request(`merchant/build-veto?address=${address}`, pm, net);
 };
@@ -209,7 +209,7 @@ transactionSDK.prototype.buildTransaction = function(address, inputs, outputs, f
  * @param {String} password
  * @returns {Object} signed data
  */
-transactionSDK.prototype.signTransaction = function(guid, transaction, password) {
+transactionSDK.prototype.signTransaction = function(guid, transaction, password, getKeyByXPub) {
     let bytom = this.bytom;
     let retPromise = new Promise((resolve, reject) => {
         getDB().then(db => {
@@ -222,16 +222,18 @@ transactionSDK.prototype.signTransaction = function(guid, transaction, password)
                     reject(new Error('not found guid'));
                     return;
                 }
-                bytom.sdk.keys.getKeyByXPub(e.target.result.rootXPub).then(res => {
-                    let pm = {transaction: transaction, password: password, key: res};
+                const res = getKeyByXPub(e.target.result.rootXPub)[0];
+                if(!res){
+                    reject('not found xpub');
+                }else{
+                    const key = res.key;
+                    let pm = {transaction: transaction, password: password, key: key};
                     signTransaction(pm).then(res => {
                         resolve(JSON.parse(res.data));
                     }).catch(err => {
                         reject(err);
                     });
-                }).catch(err => {
-                    reject(err);
-                });
+                }
             };
             getRequest.onerror = function() {
                 reject(getRequest.error);
@@ -241,6 +243,15 @@ transactionSDK.prototype.signTransaction = function(guid, transaction, password)
         });
     });
     return retPromise;
+};
+
+transactionSDK.prototype._signTransaction = function( transaction, password, key) {
+    let pm = {transaction: transaction, password: password, key: key};
+    return signTransaction(pm).then(res => {
+        return JSON.parse(res.data);
+    }).catch(err => {
+        throw (err);
+    });
 };
 
 /**
