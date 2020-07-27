@@ -32,7 +32,8 @@ function newXPrv(r) {
 
 // rootXPrv takes a seed binary string and produces a new xprv.
 function rootXPrv(seed){
-    let h = createHmac('sha512', Buffer.from('Root'))
+    debugger
+    let h = createHmac('sha512', Buffer.from('Root','utf8'))
         .update(seed)
         .digest();
 
@@ -52,9 +53,9 @@ exports.newXPrv = newXPrv;
 exports.rootXPrv = rootXPrv;
 
 // XPub derives an extended public key from a given xprv.
-XPrv.XPub = function() {
+XPrv.prototype.XPub = function() {
     const xprv = this.xprv;
-    const xpub = Buffer.concat([scalarmult_base(xprv.slice(0, 32)), xprv.slice(32, xprv.length)]);
+    const xpub = Buffer.concat([Buffer.from(scalarmult_base(xprv.slice(0, 32)),'hex'), xprv.slice(32, xprv.length)]);
 
     return xpub;
 };

@@ -1,12 +1,14 @@
-import {newXPrv} from './chainkd'
+import {newXPrv} from './chainkd';
 
 function newXKeys(r) {
-  let xprv = newXPrv(r)
+    let xprv = newXPrv(r);
 
-  return {xprv, xpub: xprv.XPub()}
+    return {xprv, xpub: xprv.XPub()};
 }
 
-exports.newXKeys = newXKeys
+export{
+    newXKeys
+};
 
 
 // function xPubKeys(xpubs)  {

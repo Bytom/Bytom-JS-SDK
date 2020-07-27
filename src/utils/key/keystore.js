@@ -11,7 +11,7 @@ function encryptKey(key , auth, scryptN, scryptP){
     let derivedKey = scrypt.syncScrypt(authArray, salt, scryptN, scryptR, scryptP, scryptDKLen);
 
     let encryptKey = derivedKey.slice(0, 16);
-    let keyBytes = key.xPrv;
+    let keyBytes = key.xPrv.xprv;
     let iv = cryp.randomBytes(16);
 
 
@@ -25,7 +25,7 @@ function encryptKey(key , auth, scryptN, scryptP){
         salt:salt.toString('hex')
     };
 
-    let mac = crypto.createHash('sha256').update(Buffer.from([...derivedKey.slice(16, 32), ...cipherText])).digest();
+    let mac = cryp.createHash('sha256').update(Buffer.from([...derivedKey.slice(16, 32), ...cipherText])).digest();
 
     return {
         version: 1,

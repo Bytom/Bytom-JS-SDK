@@ -22,12 +22,12 @@ function createkey({
         language = 'en';
     }
 
-    if (mnemonic.length > 0 ){
+    if (mnemonic && mnemonic.length > 0 ){
         return importKeyFromMnemonic(alias,password, mnemonic, language);
     }
 
-    let {xpub, _mnemonic} = xCreate(alias, password, language);
-    return {alias: xpub.alias, xpub: xpub.xpub, keystore: xpub.keystore, mnemonic: _mnemonic};
+    let obj = createNewKey(alias, password, language);
+    return {alias: obj.alias, xpub: obj.xPub.toString('hex'), keystore: obj.keystore, mnemonic:obj.mnemonic};
 }
 
 function importKeyFromMnemonic(alias, password, mnemonic, language) {
@@ -59,10 +59,10 @@ function  createKeyFromMnemonic(alias,password, mnemonic) {
     };
     let _keystore = keystore.encryptKey( key, password, LightScryptN, LightScryptP);
 
-    return {xPub: xpub, alias, keystore: _keystore};
+    return {xPub: xpub.toString('hex'), alias, keystore: _keystore};
 }
 
-function xCreate(alias, password, language) {
+function createNewKey(alias, password, language) {
     // h.cacheMu.Lock()
     // defer h.cacheMu.Unlock()
     //
@@ -71,18 +71,17 @@ function xCreate(alias, password, language) {
     // }
     let normalizedAlias = alias.trim().toLowerCase();
 
-    let {xpub, mnemonic} = createChainKDKey(normalizedAlias, password, language);
+    return createChainKDKey(normalizedAlias, password, language);
     // if err != nil {
     //   return nil, nil, err
     // }
     //
     // h.cache.add(*xpub)
-    return {xpub, mnemonic};
 }
 
 function createChainKDKey(alias,password, language){
     // Generate a mnemonic for memorization or user-friendly seeds
-    let mnemonic = bip39.generateMnemonic(EntropyLength, WORDLISTS[language]);
+    let mnemonic = bip39.generateMnemonic(EntropyLength,undefined, WORDLISTS[language]);
 
     let object = createKeyFromMnemonic(alias, password, mnemonic);
     object.mnemonic = mnemonic
@@ -90,8 +89,8 @@ function createChainKDKey(alias,password, language){
     return object;
 }
 
-export default {
+export {
     createkey,
     importKeyFromMnemonic,
-    createNewKey:xCreate
+    createNewKey
 };

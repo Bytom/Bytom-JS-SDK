@@ -1,5 +1,6 @@
-import {createKey, resetKeyPassword, createPubkey, signMessage, signTransaction} from '../wasm/func';
+import { createKey ,resetKeyPassword, createPubkey, signMessage, signTransaction} from '../wasm/func';
 import {getDB} from '../db/db';
+import {createkey} from '../utils/key/createKey';
 
 
 function keysSDK() {
@@ -121,18 +122,21 @@ keysSDK.prototype.createKey = function(alias, password) {
 
     let data = {};
     data.alias = normalizedAlias;
-    data.auth = password;
-    return createKey(data).then((res) => {
-        let jsonData = JSON.parse(res.data);
-        let dbData = {
-            key:res.data,
-            xpub:jsonData.xpub,
-            alias:alias,
-        };
-        return dbData;
-    }).catch(error => {
-        throw(error);
-    });
+    data.password = password;
+    data.mnemonic = 'salon actor flag weasel potato afraid lyrics baby hero depth wage width';
+    const res = createkey(data)
+  console.log(res);
+    // return createkey(data).then((res) => {
+    //     let jsonData = JSON.parse(res.data);
+    //     let dbData = {
+    //         key:res.data,
+    //         xpub:jsonData.xpub,
+    //         alias:alias,
+    //     };
+    //     return dbData;
+    // }).catch(error => {
+    //     throw(error);
+    // });
 };
 
 /**
@@ -157,7 +161,7 @@ keysSDK.prototype.create = function(alias, password) {
                 let data = {};
                 data.alias = normalizedAlias;
                 data.auth = password;
-                createKey(data).then((res) => {
+              createKey(data).then((res) => {
                     let jsonData = JSON.parse(res.data);
                     let dbData = {
                         key:res.data,
