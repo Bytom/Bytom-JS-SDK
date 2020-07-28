@@ -54,7 +54,7 @@ function  createKeyFromMnemonic(alias,password, mnemonic) {
     let key = {
         keyType: 'bytom_kd',
         xPub:    xpub,
-        xPrv:    xprv,
+        xPrv:    xprv.xprv,
         alias
     };
     let _keystore = keystore.encryptKey( key, password, LightScryptN, LightScryptP);
@@ -63,20 +63,8 @@ function  createKeyFromMnemonic(alias,password, mnemonic) {
 }
 
 function createNewKey(alias, password, language) {
-    // h.cacheMu.Lock()
-    // defer h.cacheMu.Unlock()
-    //
-    // if ok := h.cache.hasAlias(normalizedAlias); ok {
-    //   return nil, nil, ErrDuplicateKeyAlias
-    // }
     let normalizedAlias = alias.trim().toLowerCase();
-
     return createChainKDKey(normalizedAlias, password, language);
-    // if err != nil {
-    //   return nil, nil, err
-    // }
-    //
-    // h.cache.add(*xpub)
 }
 
 function createChainKDKey(alias,password, language){

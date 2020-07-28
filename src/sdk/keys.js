@@ -1,6 +1,8 @@
 import { createKey ,resetKeyPassword, createPubkey, signMessage, signTransaction} from '../wasm/func';
 import {getDB} from '../db/db';
 import {createkey} from '../utils/key/createKey';
+import {encryptKey, decryptKey} from '../utils/key/keystore';
+import { restoreFromKeyStore } from '../utils/account';
 
 
 function keysSDK() {
@@ -123,20 +125,31 @@ keysSDK.prototype.createKey = function(alias, password) {
     let data = {};
     data.alias = normalizedAlias;
     data.password = password;
-    data.mnemonic = 'salon actor flag weasel potato afraid lyrics baby hero depth wage width';
-    const res = createkey(data)
-  console.log(res);
-    // return createkey(data).then((res) => {
-    //     let jsonData = JSON.parse(res.data);
-    //     let dbData = {
-    //         key:res.data,
-    //         xpub:jsonData.xpub,
-    //         alias:alias,
-    //     };
-    //     return dbData;
-    // }).catch(error => {
-    //     throw(error);
-    // });
+    const res = createkey(data);
+    return res;
+};
+
+/**
+ * Create a new key.
+ *
+ * @param {String} alias - User specified, unique identifier.
+ * @param {String} password - User specified, key password.
+ */
+keysSDK.prototype.restoreFromMnemonic = function(alias, password, mnemonic) {
+    var normalizedAlias = alias.toLowerCase().trim();
+
+    let data = {};
+    data.alias = normalizedAlias;
+    data.password = password;
+    data.mnemonic = mnemonic;
+
+    const res = createkey(data);
+
+    const xpub = res.xpub;
+
+    //Todo: /account/wallets api find if xpub exist in the blockcenter, yes restore, otherwise create new account
+
+    return res;
 };
 
 /**
@@ -161,7 +174,7 @@ keysSDK.prototype.create = function(alias, password) {
                 let data = {};
                 data.alias = normalizedAlias;
                 data.auth = password;
-              createKey(data).then((res) => {
+                createKey(data).then((res) => {
                     let jsonData = JSON.parse(res.data);
                     let dbData = {
                         key:res.data,
