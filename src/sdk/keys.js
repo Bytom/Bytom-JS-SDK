@@ -1,6 +1,6 @@
 import { createKey ,resetKeyPassword, createPubkey, signMessage, signTransaction} from '../wasm/func';
 import {getDB} from '../db/db';
-import {createkey} from '../utils/key/createKey';
+import {createkey, isValidMnemonic} from '../utils/key/createKey';
 import {encryptKey, decryptKey} from '../utils/key/keystore';
 import { restoreFromKeyStore } from '../utils/account';
 
@@ -145,11 +145,52 @@ keysSDK.prototype.restoreFromMnemonic = function(alias, password, mnemonic) {
 
     const res = createkey(data);
 
-    const xpub = res.xpub;
-
-    //Todo: /account/wallets api find if xpub exist in the blockcenter, yes restore, otherwise create new account
-
     return res;
+};
+
+/**
+ * Create a new key.
+ *
+ * @param {String} alias - User specified, unique identifier.
+ * @param {String} password - User specified, key password.
+ */
+keysSDK.prototype.restoreFromKeystore = function( password, keystore) {
+
+    const walletImage = JSON.parse(keystore);
+
+    let keys, key;
+    if(walletImage.key_images && walletImage.key_images.xkeys ){
+        keys = walletImage.key_images.xkeys;
+    }
+
+    // match older version of backups keystore files
+    else if(walletImage.keys>0){
+        keys = walletImage.keys.map(keyItem => JSON.parse( keyItem.key ) );
+    }else{
+        key  = walletImage;
+    }
+
+    if(keys.length>1){
+        throw 'do not support multiple keystore imported.';
+    }
+    else if(keys.length === 1){
+        key = keys[0];
+    }
+
+    const result = decryptKey(key, password);
+
+    return result;
+};
+
+/**
+ * Create a new key.
+ *
+ * @param {String} alias - User specified, unique identifier.
+ * @param {String} password - User specified, key password.
+ */
+keysSDK.prototype.isValidMnemonic = function(mnemonic) {
+
+    return isValidMnemonic(mnemonic);
 };
 
 /**

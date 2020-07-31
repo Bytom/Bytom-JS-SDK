@@ -94,6 +94,25 @@ accountsSDK.prototype.createAccountReceiverUseServer = function(guid, label) {
 
 /**
  * Create a wallet using a public key. Each wallet is identified by a guid. (by server)
+ *
+ * @see https://gist.github.com/HAOYUatHZ/0c7446b8f33e7cddd590256b3824b08f#endpoints
+ * @param {String} rootXPub
+ * @param {String} alias alias for the account
+ * @param {String} label alias for the first address
+ * @returns {Promise}
+ */
+accountsSDK.prototype.createNewAccount = function(rootXPub, label) {
+    let net = this.bytom.net;
+    let pm = {pubkey: rootXPub};
+    if (label) {
+        pm.label = label;
+    }
+    return this.http.request('account/create', pm, net);
+};
+
+
+/**
+ * Create a wallet using a public key. Each wallet is identified by a guid. (by server)
  * 
  * @see https://gist.github.com/HAOYUatHZ/0c7446b8f33e7cddd590256b3824b08f#endpoints
  * @param {String} rootXPub

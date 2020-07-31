@@ -1,5 +1,6 @@
 import {initDB, getDB} from '../db/db';
 import { restoreFromKeyStore } from '../utils/account';
+import accountsSDK from './accounts';
 
 function walletSDK(bytom) {
     this.http = bytom.serverHttp;
@@ -50,6 +51,12 @@ walletSDK.prototype.backup = function() {
         });
     });
     return retPromise;
+};
+
+walletSDK.prototype.list = function(pubkey) {
+    let net = this.bytom.net;
+    let pm = {pubkey};
+    return this.http.request('account/wallets', pm, net);
 };
 
 /**

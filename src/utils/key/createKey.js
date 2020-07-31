@@ -30,7 +30,7 @@ function createkey({
     return {alias: obj.alias, xpub: obj.xPub.toString('hex'), keystore: obj.keystore, mnemonic:obj.mnemonic};
 }
 
-function importKeyFromMnemonic(alias, password, mnemonic, language) {
+function isValidMnemonic(mnemonic, language){
     // checksum length = entropy length /32
     // mnemonic length = (entropy length + checksum length)/11
     let mnemArray = mnemonic.trim().split(' ');
@@ -43,6 +43,10 @@ function importKeyFromMnemonic(alias, password, mnemonic, language) {
     if (!bip39.validateMnemonic(mnemonic,  WORDLISTS[language])) {
         throw 'mnemonic is invalid';
     }
+}
+
+function importKeyFromMnemonic(alias, password, mnemonic, language) {
+    isValidMnemonic(mnemonic, language)
 
     return createKeyFromMnemonic(alias, password, mnemonic);
 }
@@ -72,7 +76,7 @@ function createChainKDKey(alias,password, language){
     let mnemonic = bip39.generateMnemonic(EntropyLength,undefined, WORDLISTS[language]);
 
     let object = createKeyFromMnemonic(alias, password, mnemonic);
-    object.mnemonic = mnemonic
+    object.mnemonic = mnemonic;
 
     return object;
 }
@@ -80,5 +84,6 @@ function createChainKDKey(alias,password, language){
 export {
     createkey,
     importKeyFromMnemonic,
-    createNewKey
+    createNewKey,
+    isValidMnemonic
 };
