@@ -3,6 +3,7 @@ import {getDB} from '../db/db';
 import {createkey, isValidMnemonic} from '../utils/key/createKey';
 import {encryptKey, decryptKey} from '../utils/key/keystore';
 import { restoreFromKeyStore } from '../utils/account';
+import { camelize } from '../utils/utils';
 
 
 function keysSDK() {
@@ -144,7 +145,6 @@ keysSDK.prototype.restoreFromMnemonic = function(alias, password, mnemonic) {
     data.mnemonic = mnemonic;
 
     const res = createkey(data);
-
     return res;
 };
 
@@ -156,11 +156,25 @@ keysSDK.prototype.restoreFromMnemonic = function(alias, password, mnemonic) {
  */
 keysSDK.prototype.restoreFromKeystore = function( password, keystore) {
 
-    const walletImage = JSON.parse(keystore);
+    const result = decryptKey(keystore, password);
+    result.xpub = result.xPub.toString('hex');
+    delete result['xPub'];
+
+    return result;
+};
+
+/**
+ * Create a new key.
+ *
+ * @param {String} keystore - User specified, unique identifier.
+ */
+keysSDK.prototype.isValidKeystore = function(  keystore ) {
+
+    const walletImage = camelize(JSON.parse(keystore));
 
     let keys, key;
-    if(walletImage.key_images && walletImage.key_images.xkeys ){
-        keys = walletImage.key_images.xkeys;
+    if(walletImage.keyImages && walletImage.keyImages.xkeys ){
+        keys = walletImage.keyImages.xkeys;
     }
 
     // match older version of backups keystore files
@@ -170,16 +184,16 @@ keysSDK.prototype.restoreFromKeystore = function( password, keystore) {
         key  = walletImage;
     }
 
-    if(keys.length>1){
-        throw 'do not support multiple keystore imported.';
-    }
-    else if(keys.length === 1){
-        key = keys[0];
+    if(keys){
+        if(keys.length>1){
+            throw 'do not support multiple keystore imported.';
+        }
+        else if(keys.length === 1){
+            key = keys[0];
+        }
     }
 
-    const result = decryptKey(key, password);
-
-    return result;
+    return key;
 };
 
 /**

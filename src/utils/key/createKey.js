@@ -48,7 +48,11 @@ function isValidMnemonic(mnemonic, language){
 function importKeyFromMnemonic(alias, password, mnemonic, language) {
     isValidMnemonic(mnemonic, language)
 
-    return createKeyFromMnemonic(alias, password, mnemonic);
+    const result = createKeyFromMnemonic(alias, password, mnemonic);
+    result.xpub = result.xPub;
+    delete result['xPub'];
+
+    return result;
 }
 
 function  createKeyFromMnemonic(alias,password, mnemonic) {
