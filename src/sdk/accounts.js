@@ -186,46 +186,12 @@ accountsSDK.prototype.createAccountUseServer = function(rootXPub, alias, label) 
  */
 accountsSDK.prototype.copyAccountUseServer = function(guid, coin) {
     let net = this.bytom.net;
-    let that = this;
-    let retPromise = new Promise((resolve, reject) => {
-        let pm = {guid};
-        if (coin) {
-            pm.coin = coin;
-        }
+    let pm = {guid};
+    if (coin) {
+        pm.coin = coin;
+    }
 
-        that.http.request('account/copy', pm, net).then(resp => {
-            getDB().then(db => {
-                let objectStore = db.transaction(['accounts-server'], 'readwrite').objectStore('accounts-server');
-                let index = objectStore.index('guid');
-                let keyRange = IDBKeyRange.only(guid);
-                let getRequest = index.openCursor(keyRange);
-
-                getRequest.onsuccess = function(e) {
-                    const cursor = e.target.result;
-                    if(cursor){
-                        const accountObject = cursor.value;
-
-                        accountObject.vpAddress = resp.address;
-                        const request = cursor.update(accountObject);
-                        request.onsuccess = function () {
-                            resolve(accountObject);
-                        };
-                        request.onerror = function () {
-                            reject(request.error);
-                        };
-                    }
-                };
-                getRequest.onerror = function() {
-                    reject(getRequest.error);
-                };
-            }).catch(err => {
-                throw (err);
-            });
-        }).catch(err => {
-            reject(err);
-        });
-    });
-    return retPromise;
+    return  this.http.request('account/copy', pm, net);
 };
 
 /**
