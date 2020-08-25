@@ -14,7 +14,8 @@ function accountsSDK(bytom){
  * @returns {Promise} List of Accounts
  */
 accountsSDK.prototype.listAccountUseServer = function() {
-    let net = this.bytom.net;
+    // let net = 'mainnet';
+    let net = 'testnet';
     let retPromise = new Promise((resolve, reject) => {
         getDB().then(db => {
             let transaction = db.transaction(['accounts-server'], 'readonly');

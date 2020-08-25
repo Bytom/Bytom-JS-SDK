@@ -4,6 +4,7 @@ import {createkey, isValidMnemonic} from '../utils/key/createKey';
 import {encryptKey, decryptKey} from '../utils/key/keystore';
 import { restoreFromKeyStore } from '../utils/account';
 import { camelize } from '../utils/utils';
+import CryptoJS from 'crypto-js';
 
 
 function keysSDK() {
@@ -127,6 +128,9 @@ keysSDK.prototype.createKey = function(alias, password) {
     data.alias = normalizedAlias;
     data.password = password;
     const res = createkey(data);
+
+    res.vault = this.encryptMnemonic(res.mnemonic, password, res.keystore);
+
     return res;
 };
 
@@ -145,6 +149,8 @@ keysSDK.prototype.restoreFromMnemonic = function(alias, password, mnemonic) {
     data.mnemonic = mnemonic;
 
     const res = createkey(data);
+
+    res.vault = this.encryptMnemonic(mnemonic, password, res.keystore);
     return res;
 };
 
@@ -162,6 +168,43 @@ keysSDK.prototype.restoreFromKeystore = function( password, keystore) {
 
     return result;
 };
+
+
+/**
+ * Create a new key.
+ *
+ * @param {String} alias - User specified, unique identifier.
+ * @param {String} password - User specified, key password.
+ */
+keysSDK.prototype.encryptMnemonic = function(mnemonic, password, keystore) {
+
+    const result = decryptKey(keystore, password);
+    const xprv = result.xPrv.toString('hex');
+
+    const ciphertext = CryptoJS.AES.encrypt(mnemonic, xprv);
+
+    return ciphertext.toString();
+};
+
+/**
+ * Create a new key.
+ *
+ * @param {String} alias - User specified, unique identifier.
+ * @param {String} password - User specified, key password.
+ */
+keysSDK.prototype.decryptMnemonic = function(ciphertext, password, keystore) {
+
+    const result = decryptKey(keystore, password);
+    const xprv = result.xPrv.toString('hex');
+
+
+    const bytes = CryptoJS.AES.decrypt(ciphertext, xprv);
+    const plaintext = bytes.toString(CryptoJS.enc.Utf8);
+
+    return plaintext;
+};
+
+
 
 /**
  * Create a new key.
@@ -287,55 +330,19 @@ keysSDK.prototype.createPubkey = function(xpub) {
  * @param {String} password - password.
  * @param {Object} address - address.
  */
-keysSDK.prototype.signMessage = function(message, password, address) {
-    let retPromise = new Promise((resolve, reject) => {
-        getDB().then(db => {
-            let getRequest = db.transaction(['accounts-server'], 'readonly')
-                .objectStore('accounts-server')
-                .getAll();
-
-            getRequest.onsuccess = function (e) {
-                const result = getRequest.result.filter(obj => (obj.address === address || obj.vpAddress === address));
-                if (result.length === 0) {
-                    reject(new Error('not found address'));
-                    return;
-                }
-
-                const rootXpub = result[0].rootXPub;
-                let keyObject = db.transaction(['keys'], 'readonly')
-                    .objectStore('keys')
-                    .index('xpub')
-                    .get(rootXpub);
-
-                keyObject.onsuccess = function (e) {
-                    if (!e.target.result) {
-                        reject(new Error('not found xpub'));
-                        return;
-                    }
-
-                    let data = {};
-                    data.message = message;
-                    data.password = password;
-                    data.key = e.target.result.key;
-                    signMessage(data).then((res) => {
-                        let jsonData = JSON.parse(res.data);
-                        resolve(jsonData);
-                    }).catch(error => {
-                        reject(error);
-                    });
-                };
-                keyObject.onerror = function () {
-                    reject(getRequest.error);
-                };
-            };
-            getRequest.onerror = function () {
-                reject(getRequest.error);
-            };
-        }).catch(error => {
-            reject(error);
-        });
+keysSDK.prototype.signMessage = function(message, password, keystore) {
+    let data = {};
+    data.message = message;
+    data.password = password;
+    data.key = keystore;
+    return signMessage(data).then((res) => {
+        let jsonData = JSON.parse(res.data);
+        return (jsonData);
+    }).catch(error => {
+        throw (error);
     });
-    return retPromise;
+
+
 };
 
 export default keysSDK;

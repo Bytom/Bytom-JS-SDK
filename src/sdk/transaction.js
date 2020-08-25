@@ -73,7 +73,7 @@ transactionSDK.prototype.submitPayment = function(address, raw_transaction, sign
  * @param {Number} confirmations - transaction confirmations
  * @returns {Promise}
  */
-transactionSDK.prototype.buildPayment = function(address, to, asset, amount, fee, confirmations, memo, forbidChainTx) {
+transactionSDK.prototype.buildPayment = function(address, to, asset, amount, confirmations, memo, forbidChainTx) {
     let net = this.bytom.net;
     let pm = {
         asset: asset,
@@ -88,9 +88,6 @@ transactionSDK.prototype.buildPayment = function(address, to, asset, amount, fee
     }
     if (forbidChainTx) {
         pm.forbid_chain_tx = forbidChainTx;
-    }
-    if (fee) {
-        pm.fee = fee;
     }
     if (confirmations) {
         pm.confirmations = confirmations;
@@ -150,6 +147,13 @@ transactionSDK.prototype.buildVote = function(address, vote, amount, confirmatio
     }
 
     return this.http.request(`merchant/build-vote?address=${address}`, pm, net);
+};
+
+transactionSDK.prototype.estimateFee = function(address, asset_amounts, confirmations=1) {
+    let net = this.bytom.net;
+    let pm = {asset_amounts, confirmations};
+
+    return this.http.request(`merchant/estimate-tx-fee?address=${address}`, pm, net);
 };
 
 /**
