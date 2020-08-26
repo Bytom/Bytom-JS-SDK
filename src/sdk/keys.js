@@ -221,7 +221,7 @@ keysSDK.prototype.isValidKeystore = function(  keystore ) {
     }
 
     // match older version of backups keystore files
-    else if(walletImage.keys>0){
+    else if(walletImage['accounts-server']){
         keys = walletImage.keys.map(keyItem => JSON.parse( keyItem.key ) );
     }else{
         key  = walletImage;
