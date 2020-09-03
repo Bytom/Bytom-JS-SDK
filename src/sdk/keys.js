@@ -252,6 +252,21 @@ keysSDK.prototype.isValidMnemonic = function(mnemonic) {
 
 /**
  * Create a new key.
+ *
+ * @param {String} alias - User specified, unique identifier.
+ * @param {String} password - User specified, key password.
+ */
+keysSDK.prototype.verifyPassword = function(keystore, password) {
+    try{
+        decryptKey(keystore, password);
+    }catch (e){
+        return false;
+    }
+    return true;
+};
+
+/**
+ * Create a new key.
  * 
  * @param {String} alias - User specified, unique identifier.
  * @param {String} password - User specified, key password.
