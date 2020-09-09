@@ -1,6 +1,9 @@
 import {convertArgument, signTransaction} from '../wasm/func';
 import { handleApiError, handleAxiosError } from '../utils/http';
 import { getDB } from '../db/db';
+import {signTransaction as signJs} from '../utils/transaction/signTransaction';
+import { camelize } from '../utils/utils';
+
 
 function transactionSDK(bytom) {
     this.http = bytom.serverHttp;
@@ -256,6 +259,26 @@ transactionSDK.prototype._signTransaction = function( transaction, password, key
     }).catch(err => {
         throw (err);
     });
+};
+
+transactionSDK.prototype._signTransactionJs = function( transaction, password, key) {
+    let tx = camelize(JSON.parse(transaction));
+
+    return signJs(tx, password, key);
+};
+
+transactionSDK.prototype._signTransactionJsPromise = function( transaction, password, key) {
+    let retPromise = new Promise((resolve, reject) => {
+        try{
+            let result = this._signTransactionJs(transaction, password, key);
+            resolve(result);
+        }
+        catch(error) {
+            reject(error);
+        }
+    });
+
+    return retPromise;
 };
 
 /**

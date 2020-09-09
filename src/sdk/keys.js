@@ -5,6 +5,8 @@ import {encryptKey, decryptKey} from '../utils/key/keystore';
 import { restoreFromKeyStore } from '../utils/account';
 import { camelize } from '../utils/utils';
 import CryptoJS from 'crypto-js';
+import {signMessage as signMJs} from '../utils/transaction/signMessage';
+import transactionSDK from './transaction';
 
 
 function keysSDK() {
@@ -357,7 +359,31 @@ keysSDK.prototype.signMessage = function(message, password, keystore) {
         throw (error);
     });
 
+};
 
+/**
+ * Sign Message.
+ *
+ * @param {String} message - message.
+ * @param {String} password - password.
+ * @param {Object} address - address.
+ */
+keysSDK.prototype.signMessageJs = function(message, password, keystore) {
+    return signMJs(message, password, keystore);
+};
+
+keysSDK.prototype.signMessageJsPromise = function(message, password, keystore) {
+    let retPromise = new Promise((resolve, reject) => {
+        try{
+            let result = this.signMessageJs(message, password, keystore);
+            resolve(result);
+        }
+        catch(error) {
+            reject(error);
+        }
+    });
+
+    return retPromise;
 };
 
 export default keysSDK;
