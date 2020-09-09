@@ -3,6 +3,7 @@ let scrypt = require('scrypt-js');
 import {XPrv} from './chainkd';
 let sha3_256 = require('js-sha3').sha3_256;
 import _ from 'lodash';
+import Error from '../error';
 
 const scryptDKLen = 32;
 const scryptR     = 8;
@@ -64,7 +65,7 @@ function aesCTRXOR(key, inText, iv) {
 
 function decryptKey(v3Keystore, password){
     if (!_.isString(password)) {
-        throw new Error('No password given.');
+        throw new Error('No password given.', 'BTM3003');
     }
 
     let   k = (_.isObject(v3Keystore)) ? v3Keystore : JSON.parse(v3Keystore);
@@ -92,19 +93,19 @@ function decrypt(json, password) {
         kdfparams = json.crypto.kdfparams;
 
         if (kdfparams.prf !== 'hmac-sha256') {
-            throw new Error('Unsupported parameters to PBKDF2');
+            throw new Error('Unsupported parameters to PBKDF2', 'BTM3002');
         }
 
         derivedKey = cryp.pbkdf2Sync(Buffer.from(password), Buffer.from(kdfparams.salt, 'hex'), kdfparams.c, kdfparams.dklen, 'sha3256');
     } else {
-        throw new Error('Unsupported key derivation scheme');
+        throw new Error('Unsupported key derivation scheme' , 'BTM3001');
     }
 
     var ciphertext = Buffer.from(json.crypto.ciphertext, 'hex');
 
     var mac = sha3_256(Buffer.concat([Buffer(derivedKey.slice(16, 32)), ciphertext]));
     if (mac !== json.crypto.mac) {
-        throw new Error('Key derivation failed - possibly wrong password');
+        throw new Error('Key derivation failed - possibly wrong password', 'BTM3000');
     }
 
     var decipher = cryp.createDecipheriv(json.crypto.cipher, derivedKey.slice(0, 16), Buffer.from(json.crypto.cipherparams.iv, 'hex'));

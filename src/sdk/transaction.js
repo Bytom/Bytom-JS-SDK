@@ -1,8 +1,6 @@
-import {convertArgument, signTransaction} from '../wasm/func';
-import { handleApiError, handleAxiosError } from '../utils/http';
-import { getDB } from '../db/db';
 import {signTransaction as signJs} from '../utils/transaction/signTransaction';
 import { camelize } from '../utils/utils';
+import {convertArgument} from '../utils/convertArguement';
 
 
 function transactionSDK(bytom) {
@@ -209,57 +207,6 @@ transactionSDK.prototype.buildTransaction = function(address, inputs, outputs, f
     return this.http.request(`merchant/build-advanced-tx?address=${address}`, pm, net);
 };
 
-/**
- * sign transaction
- * @param {String} guid
- * @param {String} transaction
- * @param {String} password
- * @returns {Object} signed data
- */
-transactionSDK.prototype.signTransaction = function(guid, transaction, password, getKeyByXPub) {
-    let bytom = this.bytom;
-    let retPromise = new Promise((resolve, reject) => {
-        getDB().then(db => {
-            let getRequest = db.transaction(['accounts-server'], 'readonly')
-                .objectStore('accounts-server')
-                .index('guid')
-                .get(guid);
-            getRequest.onsuccess = function(e) {
-                if (!e.target.result) {
-                    reject(new Error('not found guid'));
-                    return;
-                }
-                const res = getKeyByXPub(e.target.result.rootXPub)[0];
-                if(!res){
-                    reject('not found xpub');
-                }else{
-                    const key = res.key;
-                    let pm = {transaction: transaction, password: password, key: key};
-                    signTransaction(pm).then(res => {
-                        resolve(JSON.parse(res.data));
-                    }).catch(err => {
-                        reject(err);
-                    });
-                }
-            };
-            getRequest.onerror = function() {
-                reject(getRequest.error);
-            };
-        }).catch(error => {
-            reject(error);
-        });
-    });
-    return retPromise;
-};
-
-transactionSDK.prototype._signTransaction = function( transaction, password, key) {
-    let pm = {transaction: transaction, password: password, key: key};
-    return signTransaction(pm).then(res => {
-        return JSON.parse(res.data);
-    }).catch(err => {
-        throw (err);
-    });
-};
 
 transactionSDK.prototype._signTransactionJs = function( transaction, password, key) {
     let tx = camelize(JSON.parse(transaction));
@@ -292,14 +239,16 @@ transactionSDK.prototype.convertArgument = function(type, value) {
         let data = {};
         data.type = type;
         data.raw_data = JSON.stringify({value});
-        convertArgument(data).then((res) => {
-            let jsonData = JSON.parse(res.data);
-            resolve(jsonData);
-        }).catch(error => {
+        try{
+            const result = convertArgument(data).data
+            resolve(result);
+        }
+        catch(error){
             reject(error);
-        });
+        }
     });
     return retPromise;
 };
+
 
 export default transactionSDK;

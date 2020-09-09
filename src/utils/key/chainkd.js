@@ -1,7 +1,6 @@
 let createHmac = require('create-hmac');
 let ED25519 =require('../ed25519');
 let Curve25519 = new ED25519.Curve;
-const ExpandedPrivateKeySize = 64
 const nacl = require('../nacl');
 // If r is nil, crypto/rand.Reader is used.
 

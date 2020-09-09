@@ -1,57 +1,9 @@
-import {initDB, getDB} from '../db/db';
 import { restoreFromKeyStore } from '../utils/account';
-import accountsSDK from './accounts';
 
 function walletSDK(bytom) {
     this.http = bytom.serverHttp;
     this.bytom = bytom;
 }
-
-let backupDBList = ['keys', 'accounts-server'];
-
-/**
- * backup wallet.
- */
-walletSDK.prototype.backup = function() {
-    let retPromise = new Promise((resolve, reject) => {
-        initDB().then(() =>{
-            let walletImage = {
-                key_images:{ xkeys:[] },
-                account_image:{ assets:[] },
-                asset_image:{ slices:[] }
-            };
-
-
-            let promiseList = [];
-            for(let dbName of backupDBList){
-                promiseList.push(backupDB(dbName));
-            }
-
-            Promise.all([promiseList]).then(([keyData, AccountData]) =>{
-                walletImage['key_images']['xkeys'] = keyData.map(a => JSON.parse(a.key));
-                walletImage['account_image']['assets'] = AccountData.map(a => {
-                    return {
-                        'account':{
-                            'type':'account',
-                            'xpubs':[
-                                a.rootXPub
-                            ],
-                            'quorum':1,
-                            'id':'byone-',
-                            'alias':a.alias,
-                            'keyIndex':1
-                        },'contractIndex':1
-                    };
-                });
-
-                resolve(JSON.stringify(walletImage));
-            }).catch(error => {
-                reject(error);
-            });
-        });
-    });
-    return retPromise;
-};
 
 walletSDK.prototype.list = function(pubkey) {
     let net = this.bytom.net;
@@ -86,63 +38,5 @@ walletSDK.prototype.restore = function(keystore, password) {
     return Promise.all(promiseList).then(resp => resp.guid);
 
 };
-
-function backupDB(dbname) {
-    let ret = new Promise((resolve, reject) => {
-        getDB().then(db => {
-
-            let transaction = db.transaction([dbname], 'readonly');
-            let objectStore = transaction.objectStore(dbname);
-            let oc = objectStore.openCursor();
-            let data = [];
-            oc.onsuccess = function (event) {
-                var cursor = event.target.result;
-                if (cursor) {
-                    data.push(cursor.value);
-                    cursor.continue();
-                } else {
-                    resolve(data);
-                }
-            };
-            oc.onerror = function(e){
-                reject(e);
-            };
-        }).catch(err => {
-            reject(err);
-        });
-    });
-    return ret;
-}
-
-function restoreDB(dbname, data) {
-    let ret = new Promise((resolve, reject) => {
-        getDB().then(db => {
-            let index = 0;
-            let errList = [];
-            batchAdd();
-
-            function batchAdd() {
-                if (index >= data.length) {
-                    let r = {name: dbname, err: errList};
-                    resolve(r);
-                    return;
-                }
-                let transaction = db.transaction([dbname], 'readwrite');
-                let objectStore = transaction.objectStore(dbname);
-                let req = objectStore.add(data[index]);
-                req.onsuccess = batchAdd;
-                req.onerror = function() {
-                    // if error continue add
-                    errList.push(req.error);
-                    batchAdd();
-                };
-                index++;
-            }
-        }).catch(err => {
-            reject(err);
-        });
-    });
-    return ret;
-}
 
 export default walletSDK;

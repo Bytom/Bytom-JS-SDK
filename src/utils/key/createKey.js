@@ -1,5 +1,6 @@
 const bip39 = require('bip39');
 const utils = require('./utils');
+import Error from '../error'
 
 const WORDLISTS = {
     en: require('bip39/src/wordlists/english.json'),
@@ -35,13 +36,13 @@ function isValidMnemonic(mnemonic, language){
     // mnemonic length = (entropy length + checksum length)/11
     let mnemArray = mnemonic.trim().split(' ');
     if (mnemArray.length != ((EntropyLength+EntropyLength/32)/11 )){
-        throw 'mnemonic length error';
+        throw new Error('mnemonic length error', 'BTM3005');
     }
 
     // Pre validate that the mnemonic is well formed and only contains words that
     // are present in the word list
     if (!bip39.validateMnemonic(mnemonic,  WORDLISTS[language])) {
-        throw 'mnemonic is invalid';
+        throw new Error('mnemonic is invalid', 'BTM3006');
     }
 }
 

@@ -4,7 +4,7 @@ import {XPrv} from '../key/chainkd';
 
 function signTransaction(transaction, password, keyJSON)  {
     if (!(transaction) || !(password) || !(keyJSON) ){
-        throw('Input args are empty');
+        throw('Input args are empty', 'BTM3100');
     }
     let tx = transaction;
     let signRet = [];
