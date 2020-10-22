@@ -1,9 +1,44 @@
+import {getDB} from '../db/db';
+
 function accountsSDK(bytom){
     this.http = bytom.serverHttp;
     this.bytom = bytom;
 }
 
+/**
+ * List of the account.
+ *
+ * @returns {Promise} List of Accounts
+ */
+accountsSDK.prototype.listAccountUseServer = function() {
+    let net = 'mainnet';
+    // let net = 'testnet';
+    let retPromise = new Promise((resolve, reject) => {
+        getDB().then(db => {
+            let transaction = db.transaction(['accounts-server'], 'readonly');
+            let objectStore = transaction.objectStore('accounts-server').index('net');
+            let keyRange = IDBKeyRange.only(net);
+            let oc = objectStore.openCursor(keyRange);
+            let ret = [];
 
+            oc.onsuccess = function (event) {
+                var cursor = event.target.result;
+                if (cursor) {
+                    ret.push(cursor.value);
+                    cursor.continue();
+                } else {
+                    resolve(ret);
+                }
+            };
+            oc.onerror = function(e){
+                reject(e);
+            };
+        }).catch(error => {
+            reject(error);
+        });
+    });
+    return retPromise;
+};
 
 /**
  * List all addresses and the corresponding balances of a wallet.
