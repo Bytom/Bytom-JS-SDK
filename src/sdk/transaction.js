@@ -1,6 +1,8 @@
 import {signTransaction as signJs} from '../utils/transaction/signTransaction';
 import { camelize } from '../utils/utils';
 import {convertArgument} from '../utils/convertArguement';
+import {http} from '../http.js';
+
 
 
 function transactionSDK(bytom) {
@@ -45,6 +47,35 @@ transactionSDK.prototype.list = function(address, filter,sort, start, limit) {
     }
     url = url + '?' + args.toString();
     return this.http.request(url, pm, net);
+};
+
+/**
+ * List all the transactions related to a wallet or an address.
+ *
+ * @see https://gist.github.com/HAOYUatHZ/0c7446b8f33e7cddd590256b3824b08f#apiv1btmmerchantlist-transactions
+ * @param {String} baseUrl request url,
+ * @param {String} address transaction address
+ * @param {Number} start page start
+ * @param {Number} limit page limit
+ * @returns {Promise}
+ */
+transactionSDK.prototype.listDelayTransaction = function(baseUrl, address, start, limit) {
+    const _http = new http(baseUrl)
+    let pm = {};
+
+    let path = '/lingerdesire/v1/list-delay-transfers';
+    let args = new URLSearchParams();
+    if (typeof start !== 'undefined') {
+        args.append('start', start);
+    }
+    if (limit) {
+        args.append('limit', limit);
+    }
+    if (address) {
+        args.append('address', address);
+    }
+    path = path + '?' + args.toString();
+    return _http.request(path, pm);
 };
 
 /**
