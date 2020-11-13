@@ -1,7 +1,8 @@
 import { hexEncode } from './hex.js';
 import bech32 from 'bech32';
+import Error from './error';
 
-export function convertArguements(obj){
+export function convertArgument(obj){
     const type = obj.type;
     const value = obj.raw_data.value;
     let convertValue;
@@ -22,7 +23,7 @@ export function convertArguements(obj){
         convertValue = convertAddress(value);
         break;
     default:
-        throw 'Invalid data type.';
+        throw new Error('Invalid data type.', 'BTM3101');
     }
     return { data: convertValue };
 }
@@ -33,7 +34,7 @@ function convertBoolean(bool) {
     }else if(bool === false){
         return '';
     }else {
-        throw 'Invalid Boolean argument';
+        throw new Error('Invalid Boolean argument','BTM3102');
     }
 }
 
@@ -54,7 +55,7 @@ function convertData(data){
     if(/^[-+]?[0-9A-Fa-f]+\.?[0-9A-Fa-f]*?$/i.test(data)){
         return data;
     }else{
-        throw 'Invalid hex data';
+        throw new Error('Invalid hex data','BTM3103');
     }
 }
 

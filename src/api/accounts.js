@@ -17,7 +17,7 @@ function accountsApi(http) {
  * @returns {Promise} Guid, address, label
  */
 accountsApi.prototype.create = function(params) {
-    return this.http.request('account/create-account', params);
+    return this.http.request('account/create', params);
 };
 
 /**
@@ -55,14 +55,13 @@ accountsApi.prototype.copyAccount = function(params) {
 };
 
 /**
- * Vapor API List Wallet.
+ * BYTOM API List Wallet.
  *
  * @param {Object} params - Parameters for Wallet List.
- * @param {String} params.start - start,
- * @param {String} params.limit  - limit
+ * @param {String} params.pubkey  - pubkey
  * @returns {Promise} Array of Object, with Guid, m, n, status, signers.
  */
-accountsApi.prototype.copyAccount = function(params) {
+accountsApi.prototype.listWallets = function(params) {
     return this.http.request('account/list-wallets', params);
 };
 
