@@ -12,8 +12,10 @@ function signTransaction(transaction, password, keyJSON)  {
     for(let k = 0; k<tx.signingInstructions.length; k++){
         const v = tx.signingInstructions[k];
         let path = [];
-        for(let i = 0; i< v.derivationPath.length; i++ ){
-            path[i] = Buffer.from(v.derivationPath[i],"hex");
+        if(v.derivationPath){
+            for(let i = 0; i< v.derivationPath.length; i++ ){
+                path[i] = Buffer.from(v.derivationPath[i],"hex");
+            }
         }
         for(let d of v.signData ){
 
