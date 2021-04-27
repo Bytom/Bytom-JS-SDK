@@ -98,7 +98,7 @@ transactionSDK.prototype.submitPayment = function(address, raw_transaction, sign
  * 
  * @see https://gist.github.com/HAOYUatHZ/0c7446b8f33e7cddd590256b3824b08f#apiv1btmmerchantbuild-payment
  * @param {String} guid unique id for each wallet
- * @param {String} to destination address
+ * @param {String|{[asset: string]: number}} to destination address
  * @param {String} asset hexdecimal asset id
  * @param {Number} amount transfer amount
  * @param {Number} fee transaction fee amount
@@ -113,7 +113,12 @@ transactionSDK.prototype.buildPayment = function(address, to, asset, amount, con
         forbid_chain_tx: false
     };
 
-    pm['recipients'][`${to}`] = amount;
+    // transfer to multi address
+    if (typeof to === 'object') {
+        pm.recipients = to;
+    } else {
+        pm.recipients[to] = amount;
+    }
 
     if (memo) {
         pm.memo = memo;
@@ -182,6 +187,7 @@ transactionSDK.prototype.buildVote = function(address, vote, amount, confirmatio
 };
 
 transactionSDK.prototype.estimateFee = function(address, asset_amounts, confirmations=1) {
+    console.log('estimateFee', arguments);
     let net = this.bytom.net;
     let pm = {asset_amounts, confirmations};
 
